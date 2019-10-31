@@ -36,10 +36,10 @@ D3DXMATRIX g_mWorld;
 D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
 
-#define M_RADIUS 0.21   // ball radius
+#define M_RADIUS 0.21   // ball radius (= 2.85cm, 1cm = 0.073684)
 #define PI 3.14159265
-#define M_HEIGHT 0.01
-#define DECREASE_RATE 0.9982
+#define M_HEIGHT 0.01 //height of wall
+#define DECREASE_RATE 0.9982 //rate of speed decrease
 
 // -----------------------------------------------------------------------------
 // CSphere class definition
@@ -55,8 +55,8 @@ private :
 public:
     CSphere(void)
     {
-        D3DXMatrixIdentity(&m_mLocal);
-        ZeroMemory(&m_mtrl, sizeof(m_mtrl));
+        D3DXMatrixIdentity(&m_mLocal); //m_mLocal은 클래스 맨 밑바닥에 있다. 로컬 좌표 변환(?)
+        ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
         m_radius = 0;
 		m_velocity_x = 0;
 		m_velocity_z = 0;
