@@ -21,6 +21,9 @@
     <ClCompile Include="virtualLego.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vector3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dUtility.h">

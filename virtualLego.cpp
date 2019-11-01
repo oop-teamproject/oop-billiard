@@ -37,6 +37,7 @@ D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
 
 #define M_RADIUS 0.21   // ball radius (= 2.85cm, 1cm = 0.073684)
+// 10.097,  20.189
 #define PI 3.14159265
 #define M_HEIGHT 0.01 //height of wall
 #define DECREASE_RATE 0.9982 //rate of speed decrease
@@ -57,7 +58,7 @@ public:
     {
         D3DXMatrixIdentity(&m_mLocal); //m_mLocal은 클래스 맨 밑바닥에 있다. 로컬 좌표 변환(?)
         ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
-        m_radius = 0;
+        m_radius = 0; //쓰지 않는다. 더미데이터. 업데이트를 하던가 해야지
 		m_velocity_x = 0;
 		m_velocity_z = 0;
         m_pSphereMesh = NULL;
@@ -101,14 +102,37 @@ public:
 	
     bool hasIntersected(CSphere& ball) 
 	{
-		// Insert your code here.
-
-		return false;
+		D3DXVECTOR3 other = ball.getCenter();
+		float dx = center_x - other.x;
+		float dy = center_y - other.y;
+		float dz = center_z - other.z;
+		float sumRad = getRadius() + ball.getRadius();
+		return (sumRad * sumRad) >= (dx * dx) + (dy * dy) + (dz * dz);
 	}
 	
 	void hitBy(CSphere& ball) 
 	{ 
-		// Insert your code here.
+		if (!hasIntersected(ball))
+			return;
+		else
+		{
+			/*
+			테스트 코드
+			*/
+			m_mtrl.Ambient = d3d::CYAN;
+			m_mtrl.Diffuse = d3d::CYAN;
+			m_mtrl.Specular = d3d::CYAN;
+			//구체가 겹쳐있을 경우 얼마나 겹쳐있는지 계산하고
+			//접하는 점으로 이동시킨 다음 돌아가야 하는 시간을 계산
+			//TODO::지훈 파이팅!!
+			
+			//------------------------------------------
+			//구끼리 접한 상태
+			//속도 업데이트
+
+			//-------------------------------------------
+			//아까 돌아간 시간만큼 주어진 속도로 이동
+		}
 	}
 
 	void ballUpdate(float timeDiff) 
@@ -483,7 +507,7 @@ bool Display(float timeDelta)
 		for(i = 0 ;i < 4; i++){
 			for(j = 0 ; j < 4; j++) {
 				if(i >= j) {continue;}
-				g_sphere[i].hitBy(g_sphere[j]);
+				g_sphere[i].hitBy(g_sphere[j] /*TODO::, timeDelta*/);
 			}
 		}
 
