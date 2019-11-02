@@ -51,6 +51,7 @@ private :
 	float					center_x, center_y, center_z;
     float                   m_radius;
 	float					m_velocity_x;
+	float					m_velocity_y;
 	float					m_velocity_z;
 
 public:
@@ -58,8 +59,9 @@ public:
     {
         D3DXMatrixIdentity(&m_mLocal); //m_mLocal은 클래스 맨 밑바닥에 있다. 로컬 좌표 변환(?)
         ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
-        m_radius = 0; //쓰지 않는다. 더미데이터. 업데이트를 하던가 해야지
+        m_radius = M_RADIUS;
 		m_velocity_x = 0;
+		m_velocity_y = 0;
 		m_velocity_z = 0;
         m_pSphereMesh = NULL;
     }
@@ -169,14 +171,20 @@ public:
 	}
 
 	double getVelocity_X() { return this->m_velocity_x;	}
+	double getVelocity_Y() { return this->m_velocity_y; }
 	double getVelocity_Z() { return this->m_velocity_z; }
 
 	void setPower(double vx, double vz)
 	{
-		this->m_velocity_x = vx;
-		this->m_velocity_z = vz;
+		setPower(vx, getVelocity_Y(), vz);
 	}
 
+	void setPower(double vx, double vy, double vz)
+	{
+		this->m_velocity_x = vx;
+		this->m_velocity_y = vy;
+		this->m_velocity_z = vz;
+	}
 	void setCenter(float x, float y, float z)
 	{
 		D3DXMATRIX m;
@@ -185,7 +193,7 @@ public:
 		setLocalTransform(m);
 	}
 	
-	float getRadius(void)  const { return (float)(M_RADIUS);  }
+	float getRadius(void)  const { return this->m_radius;  }
     const D3DXMATRIX& getLocalTransform(void) const { return m_mLocal; }
     void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
     D3DXVECTOR3 getCenter(void) const
@@ -212,6 +220,7 @@ class CWall {
 private:
 	
     float					m_x;
+	float					m_y;
 	float					m_z;
 	float                   m_width;
     float                   m_depth;
@@ -224,6 +233,7 @@ public:
         ZeroMemory(&m_mtrl, sizeof(m_mtrl));
         m_width = 0;
         m_depth = 0;
+		m_height = 0;
         m_pBoundMesh = NULL;
     }
     ~CWall(void) {}
@@ -241,6 +251,7 @@ public:
 		
         m_width = iwidth;
         m_depth = idepth;
+		m_height = iheight;
 		
         if (FAILED(D3DXCreateBox(pDevice, iwidth, iheight, idepth, &m_pBoundMesh, NULL)))
             return false;
@@ -262,15 +273,81 @@ public:
         pDevice->SetMaterial(&m_mtrl);
 		m_pBoundMesh->DrawSubset(0);
     }
-	
+private:
+	float square(float X) { return X * X; }
+public:
 	bool hasIntersected(CSphere& ball) 
 	{
-		// Insert your code here.
+		//직육면체를 사방으로 원 반지름만큼 확장시킨 도형과 원 중심으로 충돌 판정을 한다.
+		//직육면체의 면을 확장시킨 부분은 직육면체가 되고,
+		//직육면체의 모서리를 확장시킨 부분은 원기둥(의 1/4)이 되고,
+		//직육면체의 꼭지점을 확장시킨 부분은 구(의 1/8)가 된다.
+		D3DXVECTOR3 ballCenter = ball.getCenter();
+		D3DXVECTOR3 wallCenter = this->getCenter();
+		float ballRadius = ball.getRadius();
+		float width = getWidth();
+		float height = getHeight();
+		float depth = getDepth();
+		//확장시킨 직육면체와 먼저 충돌 판정.
+		//i에 따라 각각 x,y,z축 방향으로 뻗은 직육면체 + 기본 벽면
+		float expand[3][3] = { {ballRadius,0,0}, {0,ballRadius,0}, {0,0,ballRadius} };
+		for (int i = 0; i < 3; i++) {
+			if (ballCenter.x + expand[i][0] >= wallCenter.x - width && ballCenter.x - expand[i][0] <= wallCenter.x + width)
+				if (ballCenter.y + expand[i][1] >= wallCenter.y - height && ballCenter.y - expand[i][1] <= wallCenter.y + height)
+					if (ballCenter.z + expand[i][2] >= wallCenter.z - depth && ballCenter.z - expand[i][2] <= wallCenter.z + depth)
+						return true;
+		}
+		//모서리를 확장시킨 원기둥과 충돌판정.
+			//xz평면쪽 모서리와는 판정할 필요가 없다. 당구대 벽면이 모두 막혀있기 때문에 꼭지점 쪽으로 공이 빠져나가는 경우는 생기지 않는다.
+			//아래쪽 모서리와는 판정할 필요가 없다. 천장이 없으니 벽이든 바닥이든 공이 아래쪽에 있으면 떨어지는 게 맞음. 이미 아웃된 공이니까.
+			//위쪽 모서리 4부분에는 판정해야 한다. 공이 벽 위에 올라타는 경우가 생길 수 있음.
+		//+x방향
+		if (ballCenter.z + ballRadius >= wallCenter.z - depth && ballCenter.z - ballRadius <= wallCenter.z + depth)
+			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+		//-x방향
+		if (ballCenter.z + ballRadius >= wallCenter.z - depth && ballCenter.z - ballRadius <= wallCenter.z + depth)
+			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+		//+z방향
+		if (ballCenter.x + ballRadius >= wallCenter.x - depth && ballCenter.x - ballRadius <= wallCenter.x + depth)
+			if (square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+		//-z방향
+		if (ballCenter.x + ballRadius >= wallCenter.x - depth && ballCenter.x - ballRadius <= wallCenter.x + depth)
+			if (square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+		//꼭지점을 확장시킨 구와 충돌판정.
+			//마찬가지로 위쪽 4부분만 판정하면 된다.
+		if (ballCenter.y >= wallCenter.y + height) {
+			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
+				return true;
+		}
 		return false;
 	}
 
-	void hitBy(CSphere& ball) 
+	void hitBy(CSphere& ball)
 	{
+		/*test code*/
+		if (!hasIntersected(ball))
+		{
+			m_mtrl.Ambient = d3d::DARKRED;
+			m_mtrl.Diffuse = d3d::DARKRED;
+			m_mtrl.Specular = d3d::DARKRED;
+			return;
+		}
+		else
+		{
+			m_mtrl.Ambient = d3d::CYAN;
+			m_mtrl.Diffuse = d3d::CYAN;
+			m_mtrl.Specular = d3d::CYAN;
+		}
 		// Insert your code here.
 	}    
 	
@@ -278,14 +355,21 @@ public:
 	{
 		D3DXMATRIX m;
 		this->m_x = x;
+		this->m_y = y;
 		this->m_z = z;
 
 		D3DXMatrixTranslation(&m, x, y, z);
 		setLocalTransform(m);
 	}
 	
-    float getHeight(void) const { return M_HEIGHT; }
-	
+    float getHeight(void) const { return this->m_height; }
+	float getWidth(void)  const { return this->m_width;  }
+	float getDepth(void)  const { return this->m_depth;  }
+	D3DXVECTOR3 getCenter(void) const
+	{
+		D3DXVECTOR3 org(m_x, m_y, m_z);
+		return org;
+	}
 	
 	
 private :
