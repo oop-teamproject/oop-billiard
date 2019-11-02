@@ -81,7 +81,7 @@ public:
         m_mtrl.Emissive = d3d::BLACK;
         m_mtrl.Power    = 5.0f;
 		
-        if (FAILED(D3DXCreateSphere(pDevice, getRadius(), 50, 50, &m_pSphereMesh, NULL)))
+        if (FAILED(D3DXCreateSphere(pDevice, getRadius(), 20, 20, &m_pSphereMesh, NULL)))
             return false;
         return true;
     }
