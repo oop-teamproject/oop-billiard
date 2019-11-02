@@ -267,18 +267,14 @@ public:
 private:
 	float square(float X) { return X * X; }
 public:
-	bool hasIntersected(CSphere& ball) 
+	bool hasIntersected(CSphere& ball) const
 	{
-		//직육면체를 사방으로 원 반지름만큼 확장시킨 도형과 원 중심으로 충돌 판정을 한다.
-		//직육면체의 면을 확장시킨 부분은 직육면체가 되고,
-		//직육면체의 모서리를 확장시킨 부분은 원기둥(의 1/4)이 되고,
-		//직육면체의 꼭지점을 확장시킨 부분은 구(의 1/8)가 된다.
 		D3DXVECTOR3 ballCenter = ball.getCenter();
 		D3DXVECTOR3 wallCenter = this->getCenter();
 		float ballRadius = ball.getRadius();
-		float width = getWidth();
-		float height = getHeight();
-		float depth = getDepth();
+		float width = getWidth() / 2;
+		float height = getHeight() /2;
+		float depth = getDepth() /2;
 		//충돌하지 않는 경우가 훨씬 많으므로, 충분히 넓은 바운딩박스 안에 들어오지 않는 경우를 먼저 배제한다.
 		if (ballCenter.x - ballRadius > wallCenter.x + width || ballCenter.x + ballRadius < wallCenter.x - width)
 			return false;
@@ -286,50 +282,41 @@ public:
 			return false;
 		if (ballCenter.z - ballRadius > wallCenter.z + depth || ballCenter.z + ballRadius < wallCenter.z - depth)
 			return false;
-		//확장시킨 직육면체와 먼저 충돌 판정.
-		//i에 따라 각각 x,y,z축 방향으로 뻗은 직육면체 + 기본 벽면
-		float expand[3][3] = { {ballRadius,0,0}, {0,ballRadius,0}, {0,0,ballRadius} };
-		for (int i = 0; i < 3; i++) {
-			if (ballCenter.x + expand[i][0] >= wallCenter.x - width && ballCenter.x - expand[i][0] <= wallCenter.x + width)
-				if (ballCenter.y + expand[i][1] >= wallCenter.y - height && ballCenter.y - expand[i][1] <= wallCenter.y + height)
-					if (ballCenter.z + expand[i][2] >= wallCenter.z - depth && ballCenter.z - expand[i][2] <= wallCenter.z + depth)
-						return true;
-		}
-		//모서리를 확장시킨 원기둥과 충돌판정.
-			//xz평면쪽 모서리와는 판정할 필요가 없다. 당구대 벽면이 모두 막혀있기 때문에 꼭지점 쪽으로 공이 빠져나가는 경우는 생기지 않는다.
-			//아래쪽 모서리와는 판정할 필요가 없다. 천장이 없으니 벽이든 바닥이든 공이 아래쪽에 있으면 떨어지는 게 맞음. 이미 아웃된 공이니까.
-			//위쪽 모서리 4부분에는 판정해야 한다. 공이 벽 위에 올라타는 경우가 생길 수 있음.
-		//+x방향
-		if (ballCenter.z + ballRadius >= wallCenter.z - depth && ballCenter.z - ballRadius <= wallCenter.z + depth)
-			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-		//-x방향
-		if (ballCenter.z + ballRadius >= wallCenter.z - depth && ballCenter.z - ballRadius <= wallCenter.z + depth)
-			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-		//+z방향
-		if (ballCenter.x + ballRadius >= wallCenter.x - depth && ballCenter.x - ballRadius <= wallCenter.x + depth)
-			if (square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-		//-z방향
-		if (ballCenter.x + ballRadius >= wallCenter.x - depth && ballCenter.x - ballRadius <= wallCenter.x + depth)
-			if (square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-		//꼭지점을 확장시킨 구와 충돌판정.
-			//마찬가지로 위쪽 4부분만 판정하면 된다.
-		if (ballCenter.y >= wallCenter.y + height) {
-			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-			if (square(ballCenter.x - (wallCenter.x + width)) + square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.z - (wallCenter.z + depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-			if (square(ballCenter.x - (wallCenter.x - width)) + square(ballCenter.z - (wallCenter.z - depth)) + square(ballCenter.y - (wallCenter.y + height)) <= square(ballRadius))
-				return true;
-		}
-		return false;
+		D3DXVECTOR3 closest = closestPoint(ball);
+		D3DXVECTOR3 diff = closest - ballCenter;
+		//구의 중심과, 구에 가장 가까운 정육면체 위의 점 사이의 거리를 재서 판단한다.
+ 		return D3DXVec3Length(&diff) <= ballRadius;
 	}
+	
+	//파라미터로 주어진 구에 가장 가까운 직육면체 위의 점을 구한다.
+	D3DXVECTOR3 closestPoint(CSphere& ball) const {
+		D3DXVECTOR3 result;
+		D3DXVECTOR3 ballCenter = ball.getCenter();
+		D3DXVECTOR3 wallCenter = this->getCenter();
+		float width = getWidth() / 2;
+		float height = getHeight() / 2;
+		float depth = getDepth() / 2;
 
+		if (ballCenter.x < wallCenter.x - width)
+			result.x = wallCenter.x - width;
+		else if (ballCenter.x > wallCenter.x + width )
+			result.x = wallCenter.x + width;
+		else result.x = ballCenter.x;
+
+		if (ballCenter.y < wallCenter.y - height)
+			result.y = wallCenter.y - height;
+		else if (ballCenter.y > wallCenter.y + height)
+			result.y = wallCenter.y + height;
+		else result.y = ballCenter.y;
+
+		if (ballCenter.z < wallCenter.z - depth)
+			result.z = wallCenter.z - depth;
+		else if (ballCenter.z > wallCenter.z + depth)
+			result.z = wallCenter.z + depth;
+		else result.z = ballCenter.z;
+
+		return result;
+	}
 	void hitBy(CSphere& ball)
 	{
 		/*test code*/
@@ -345,6 +332,7 @@ public:
 			m_mtrl.Ambient = d3d::CYAN;
 			m_mtrl.Diffuse = d3d::CYAN;
 			m_mtrl.Specular = d3d::CYAN;
+
 		}
 		// Insert your code here.
 	}    
