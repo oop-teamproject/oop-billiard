@@ -37,6 +37,7 @@ D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
 
 #define M_RADIUS 0.21   // ball radius (= 2.85cm, 1cm = 0.073684)
+#define GRAVITY_CONST 72.128 //gravity constant(=980cm/s = 72.128/s)
 // 10.097,  20.189
 #define PI 3.14159265
 #define M_HEIGHT 0.01 //height of wall
@@ -59,7 +60,7 @@ public:
     {
         D3DXMatrixIdentity(&m_mLocal); //m_mLocal은 클래스 맨 밑바닥에 있다. 로컬 좌표 변환(?)
         ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
-        m_radius = 0; //쓰지 않는다. 더미데이터. 업데이트를 하던가 해야지
+        m_radius = M_RADIUS;
 		m_velocity_x = 0;
 		m_velocity_y = 0;
 		m_velocity_z = 0;
@@ -159,15 +160,15 @@ public:
 			 float vvy = center_y - other.y;
 			 float vvz = center_z - other.z;
 
-			 D3DXVEC3
+			 //D3DXVEC3
 			 
 			 
 
 
 
 			 
-			 setPower(spinx,spiny,spinz);
-			ball.setPower(spoutx,spouty,spoutz);
+			 //setPower(spinx,spiny,spinz);
+			//ball.setPower(spoutx,spouty,spoutz);
 
 		
 			
@@ -179,54 +180,44 @@ public:
 		}
 	}
 
-	void ballUpdate(float timeDiff) 
+	void ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	{
 		const float TIME_SCALE = 3.3;
 		D3DXVECTOR3 cord = this->getCenter();
 		double vx = abs(this->getVelocity_X());
+		double vy = abs(this->getVelocity_Y());
 		double vz = abs(this->getVelocity_Z());
 
-		if(vx > 0.01 || vz > 0.01)
+		if(vx > 0.01 || vy > 0.01 || vz > 0.01)
 		{
 			float tX = cord.x + TIME_SCALE*timeDiff*m_velocity_x;
+			float tY = cord.y + TIME_SCALE*timeDiff*m_velocity_y;
 			float tZ = cord.z + TIME_SCALE*timeDiff*m_velocity_z;
-
-			//correction of position of ball
-			// Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
-			/*if(tX >= (4.5 - M_RADIUS))
-				tX = 4.5 - M_RADIUS;
-			else if(tX <=(-4.5 + M_RADIUS))
-				tX = -4.5 + M_RADIUS;
-			else if(tZ <= (-3 + M_RADIUS))
-				tZ = -3 + M_RADIUS;
-			else if(tZ >= (3 - M_RADIUS))
-				tZ = 3 - M_RADIUS;*/
-			
-			this->setCenter(tX, cord.y, tZ);
+			this->setCenter(tX, tY, tZ);
 		}
 		else { this->setPower(0,0);}
 		//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
 		double rate = 1 -  (1 - DECREASE_RATE)*timeDiff * 400;
 		if(rate < 0 )
 			rate = 0;
-		this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
+		this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
 	}
 
-	double getVelocity_X() { return this->m_velocity_x;	}
-	double getVelocity_Y() { return this->m_velocity_y; }
-	double getVelocity_Z() { return this->m_velocity_z; }
-	D3DXVECTOR3 getVelocity() { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
+	double getVelocity_X() const { return this->m_velocity_x; }
+	double getVelocity_Y() const { return this->m_velocity_y; }
+	double getVelocity_Z() const { return this->m_velocity_z; }
+	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
 
-	void setPower(double vx, double vz) {
+	void setPower(double vx, double vz)
+	{
 		setPower(vx, getVelocity_Y(), vz);
 	}
-	void setPower(double vx,double vy, double vz)
+	void setPower(double vx, double vy, double vz)
 	{
 		this->m_velocity_x = vx;
 		this->m_velocity_y = vy;
 		this->m_velocity_z = vz;
 	}
-
 	void setCenter(float x, float y, float z)
 	{
 		D3DXMATRIX m;
@@ -235,7 +226,7 @@ public:
 		setLocalTransform(m);
 	}
 	
-	float getRadius(void)  const { return (float)(M_RADIUS);  }
+	float getRadius(void)  const { return this->m_radius;  }
     const D3DXMATRIX& getLocalTransform(void) const { return m_mLocal; }
     void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
     D3DXVECTOR3 getCenter(void) const
@@ -262,6 +253,7 @@ class CWall {
 private:
 	
     float					m_x;
+	float					m_y;
 	float					m_z;
 	float                   m_width;
     float                   m_depth;
@@ -274,6 +266,7 @@ public:
         ZeroMemory(&m_mtrl, sizeof(m_mtrl));
         m_width = 0;
         m_depth = 0;
+		m_height = 0;
         m_pBoundMesh = NULL;
     }
     ~CWall(void) {}
@@ -291,6 +284,7 @@ public:
 		
         m_width = iwidth;
         m_depth = idepth;
+		m_height = iheight;
 		
         if (FAILED(D3DXCreateBox(pDevice, iwidth, iheight, idepth, &m_pBoundMesh, NULL)))
             return false;
@@ -312,30 +306,124 @@ public:
         pDevice->SetMaterial(&m_mtrl);
 		m_pBoundMesh->DrawSubset(0);
     }
-	
-	bool hasIntersected(CSphere& ball) 
+private:
+	float square(float X) { return X * X; }
+public:
+	bool hasIntersected(CSphere& ball) const
 	{
-		// Insert your code here.
-		return false;
+		D3DXVECTOR3 ballCenter = ball.getCenter();
+		D3DXVECTOR3 wallCenter = this->getCenter();
+		float ballRadius = ball.getRadius();
+		float width = getWidth() / 2;
+		float height = getHeight() /2;
+		float depth = getDepth() /2;
+		//충돌하지 않는 경우가 훨씬 많으므로, 충분히 넓은 바운딩박스 안에 들어오지 않는 경우를 먼저 배제한다.
+		if (ballCenter.x - ballRadius > wallCenter.x + width || ballCenter.x + ballRadius < wallCenter.x - width)
+			return false;
+		if (ballCenter.y - ballRadius > wallCenter.y + height || ballCenter.y + ballRadius < wallCenter.y - height)
+			return false;
+		if (ballCenter.z - ballRadius > wallCenter.z + depth || ballCenter.z + ballRadius < wallCenter.z - depth)
+			return false;
+		D3DXVECTOR3 closest = closestPoint(ball);
+		D3DXVECTOR3 diff = closest - ballCenter;
+		//구의 중심과, 구에 가장 가까운 정육면체 위의 점 사이의 거리를 재서 판단한다.
+ 		return D3DXVec3Length(&diff) <= ballRadius;
 	}
+	
+	//파라미터로 주어진 구에 가장 가까운 직육면체 위의 점을 구한다.
+	D3DXVECTOR3 closestPoint(CSphere& ball) const {
+		D3DXVECTOR3 result;
+		D3DXVECTOR3 ballCenter = ball.getCenter();
+		D3DXVECTOR3 wallCenter = this->getCenter();
+		float width = getWidth() / 2;
+		float height = getHeight() / 2;
+		float depth = getDepth() / 2;
 
-	void hitBy(CSphere& ball) 
+		if (ballCenter.x < wallCenter.x - width)
+			result.x = wallCenter.x - width;
+		else if (ballCenter.x > wallCenter.x + width )
+			result.x = wallCenter.x + width;
+		else result.x = ballCenter.x;
+
+		if (ballCenter.y < wallCenter.y - height)
+			result.y = wallCenter.y - height;
+		else if (ballCenter.y > wallCenter.y + height)
+			result.y = wallCenter.y + height;
+		else result.y = ballCenter.y;
+
+		if (ballCenter.z < wallCenter.z - depth)
+			result.z = wallCenter.z - depth;
+		else if (ballCenter.z > wallCenter.z + depth)
+			result.z = wallCenter.z + depth;
+		else result.z = ballCenter.z;
+
+		return result;
+	}
+	void hitBy(CSphere& ball)
 	{
-		// Insert your code here.
+		/*test code*/
+		if (!hasIntersected(ball))
+		{
+			return;
+		}
+		else
+		{
+			//공과 벽이 겹칠 경우 뒤로 조금 돌린다.
+			//만약 공이 전혀 움직이지 않고 있던 경우 모순이 생기므로 속도를 임의로 설정한다.
+			if (ball.getVelocity() == D3DXVECTOR3(0, 0, 0))
+				ball.setPower(1, 0, 0);
+
+			D3DXVECTOR3 prevPos = ball.getCenter() - ball.getVelocity();
+			D3DXVECTOR3 currentPos = ball.getCenter();
+			D3DXVECTOR3 closest = closestPoint(ball);
+			float prevDist;
+			float currDist;
+			prevDist = D3DXVec3Length(&(closest - prevPos));
+			currDist = D3DXVec3Length(&(closest - currentPos));
+			float multiplier = (ball.getRadius() - prevDist) / (currDist - prevDist);
+			ball.setCenter(prevPos.x + multiplier * ball.getVelocity_X(), prevPos.y + multiplier * ball.getVelocity_Y(), prevPos.z + multiplier * ball.getVelocity_Z());
+
+			//새로 속도를 계산한다.
+			D3DXVECTOR3 ballToWall = closest - ball.getCenter();
+			if (ballToWall == D3DXVECTOR3(0,0,0)) //closest와 구의 중심이 완전히 겹쳐 Normalize할 수 없는 경우는 임의의 벡터를 쓴다.
+				ballToWall.x = 1.0f;
+			D3DXVec3Normalize(&ballToWall, &ballToWall);
+			D3DXVECTOR3 vTowardWall;
+			vTowardWall = ballToWall * D3DXVec3Dot(&ballToWall, &ball.getVelocity());
+			D3DXVECTOR3 vOrthogonal = ball.getVelocity() - vTowardWall;
+			vTowardWall = -vTowardWall;
+			D3DXVECTOR3 newVelocity = vTowardWall + vOrthogonal;
+			if (newVelocity.y <= 0.1)
+				ball.setPower(newVelocity.x, 0, newVelocity.z);
+			else
+				ball.setPower(newVelocity.x, newVelocity.y, newVelocity.z);
+
+			//뒤로 돌렸던 만큼 다시 앞으로 이동시킨다.
+			currentPos = ball.getCenter();
+			currentPos += (1 - multiplier) * ball.getVelocity();
+			ball.setCenter(currentPos.x, currentPos.y, currentPos.z);
+		}
 	}    
 	
 	void setPosition(float x, float y, float z)
 	{
 		D3DXMATRIX m;
 		this->m_x = x;
+		this->m_y = y;
 		this->m_z = z;
 
 		D3DXMatrixTranslation(&m, x, y, z);
 		setLocalTransform(m);
 	}
 	
-    float getHeight(void) const { return M_HEIGHT; }
-	
+    float getHeight(void) const { return this->m_height; }
+	float getWidth(void)  const { return this->m_width;  }
+	float getDepth(void)  const { return this->m_depth;  }
+	D3DXVECTOR3 getCenter(void) const
+	{
+		D3DXVECTOR3 org(m_x, m_y, m_z);
+		return org;
+	}
 	
 	
 private :
@@ -411,13 +499,14 @@ public:
         return true;
     }
 
-    void draw(IDirect3DDevice9* pDevice)
+    void draw(IDirect3DDevice9* pDevice/*, const D3DXMATRIX& mWorld*/)
     {
         if (NULL == pDevice)
             return;
         D3DXMATRIX m;
         D3DXMatrixTranslation(&m, m_lit.Position.x, m_lit.Position.y, m_lit.Position.z);
-        pDevice->SetTransform(D3DTS_WORLD, &m);
+		pDevice->SetTransform(D3DTS_WORLD, &m/*&mWorld*/);
+		//pDevice->MultiplyTransform(D3DTS_WORLD, &m);
         pDevice->SetMaterial(&d3d::WHITE_MTRL);
         m_pMesh->DrawSubset(0);
     }
@@ -568,7 +657,7 @@ bool Display(float timeDelta)
 			g_sphere[i].draw(Device, g_mWorld);
 		}
 		g_target_blueball.draw(Device, g_mWorld);
-        g_light.draw(Device);
+        g_light.draw(Device/*, g_mWorld*/);
 		
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
