@@ -37,6 +37,7 @@ D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
 
 #define M_RADIUS 0.21   // ball radius (= 2.85cm, 1cm = 0.073684)
+#define GRAVITY_CONST 72.128 //gravity constant(=980cm/s = 72.128/s)
 // 10.097,  20.189
 #define PI 3.14159265
 #define M_HEIGHT 0.01 //height of wall
@@ -137,37 +138,27 @@ public:
 		}
 	}
 
-	void ballUpdate(float timeDiff) 
+	void ballUpdate(float timeDiff) /*timeDiff-- ÃÊ ´ÜÀ§*/
 	{
 		const float TIME_SCALE = 3.3;
 		D3DXVECTOR3 cord = this->getCenter();
 		double vx = abs(this->getVelocity_X());
+		double vy = abs(this->getVelocity_Y());
 		double vz = abs(this->getVelocity_Z());
 
-		if(vx > 0.01 || vz > 0.01)
+		if(vx > 0.01 || vy > 0.01 || vz > 0.01)
 		{
 			float tX = cord.x + TIME_SCALE*timeDiff*m_velocity_x;
+			float tY = cord.y + TIME_SCALE*timeDiff*m_velocity_y;
 			float tZ = cord.z + TIME_SCALE*timeDiff*m_velocity_z;
-
-			//correction of position of ball
-			// Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
-			/*if(tX >= (4.5 - M_RADIUS))
-				tX = 4.5 - M_RADIUS;
-			else if(tX <=(-4.5 + M_RADIUS))
-				tX = -4.5 + M_RADIUS;
-			else if(tZ <= (-3 + M_RADIUS))
-				tZ = -3 + M_RADIUS;
-			else if(tZ >= (3 - M_RADIUS))
-				tZ = 3 - M_RADIUS;*/
-			
-			this->setCenter(tX, cord.y, tZ);
+			this->setCenter(tX, tY, tZ);
 		}
 		else { this->setPower(0,0);}
 		//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
 		double rate = 1 -  (1 - DECREASE_RATE)*timeDiff * 400;
 		if(rate < 0 )
 			rate = 0;
-		this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
+		this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
 	}
 
 	double getVelocity_X() { return this->m_velocity_x;	}
@@ -445,13 +436,14 @@ public:
         return true;
     }
 
-    void draw(IDirect3DDevice9* pDevice)
+    void draw(IDirect3DDevice9* pDevice/*, const D3DXMATRIX& mWorld*/)
     {
         if (NULL == pDevice)
             return;
         D3DXMATRIX m;
         D3DXMatrixTranslation(&m, m_lit.Position.x, m_lit.Position.y, m_lit.Position.z);
-        pDevice->SetTransform(D3DTS_WORLD, &m);
+		pDevice->SetTransform(D3DTS_WORLD, &m/*&mWorld*/);
+		//pDevice->MultiplyTransform(D3DTS_WORLD, &m);
         pDevice->SetMaterial(&d3d::WHITE_MTRL);
         m_pMesh->DrawSubset(0);
     }
@@ -602,7 +594,7 @@ bool Display(float timeDelta)
 			g_sphere[i].draw(Device, g_mWorld);
 		}
 		g_target_blueball.draw(Device, g_mWorld);
-        g_light.draw(Device);
+        g_light.draw(Device/*, g_mWorld*/);
 		
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
