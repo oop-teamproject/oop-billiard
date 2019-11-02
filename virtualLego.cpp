@@ -279,6 +279,13 @@ public:
 		float width = getWidth();
 		float height = getHeight();
 		float depth = getDepth();
+		//충돌하지 않는 경우가 훨씬 많으므로, 충분히 넓은 바운딩박스 안에 들어오지 않는 경우를 먼저 배제한다.
+		if (ballCenter.x - ballRadius > wallCenter.x + width || ballCenter.x + ballRadius < wallCenter.x - width)
+			return false;
+		if (ballCenter.y - ballRadius > wallCenter.y + height || ballCenter.y + ballRadius < wallCenter.y - height)
+			return false;
+		if (ballCenter.z - ballRadius > wallCenter.z + depth || ballCenter.z + ballRadius < wallCenter.z - depth)
+			return false;
 		//확장시킨 직육면체와 먼저 충돌 판정.
 		//i에 따라 각각 x,y,z축 방향으로 뻗은 직육면체 + 기본 벽면
 		float expand[3][3] = { {ballRadius,0,0}, {0,ballRadius,0}, {0,0,ballRadius} };
