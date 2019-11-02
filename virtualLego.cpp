@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "d3dUtility.h"
+#include <d3dx9.h>
 #include <vector>
 #include <ctime>
 #include <cstdlib>
@@ -119,64 +120,47 @@ public:
 			return;
 		else
 		{
-			/*
-			테스트 코드
-			*/
-			m_mtrl.Ambient = d3d::CYAN;
-			m_mtrl.Diffuse = d3d::CYAN;
-			m_mtrl.Specular = d3d::CYAN;
-
 			D3DXVECTOR3 other = ball.getCenter();
+			D3DXVECTOR3 vNorm = getCenter() - ball.getCenter();
+			D3DXVec3Normalize(&vNorm, &vNorm);
 			float dx = center_x - other.x;
 			float dy = center_y - other.y;
 			float dz = center_z - other.z;
 			float dsum = sqrt((dx * dx) + (dy * dy) + (dz * dz));
 			float diffx, diffy, diffz;
+			D3DXVECTOR3 diff;
 			if (dsum != 0)
 			{
-				 diffx = getRadius() * dx / dsum - dx / 2;
-				 diffy = getRadius() * dy / dsum - dy / 2;
-				 diffz = getRadius() * dz / dsum - dz / 2;
+				diff = getRadius() * vNorm;
+				diffx = getRadius() * dx / dsum - dx / 2;
+				diffy = getRadius() * dy / dsum - dy / 2;
+				diffz = getRadius() * dz / dsum - dz / 2;
 			};
 			if (dsum == 0)
 			{
-				diffx = getRadius()/2;//// 원래의 xyz 좌표의 차이
-				diffy = getRadius()/2;
-				diffz = getRadius()/2;
+				diffx = getRadius() / 2;//// 원래의 xyz 좌표의 차이
+				diffy = getRadius() / 2;
+				diffz = getRadius() / 2;
 
 			};
-				center_x = center_x + diffx;
-				center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
-				center_z = center_z + diffz;
-				other.x = other.x - diffx;
-				other.y = other.y - diffy;
-				other.z = other.z- diffz;
-			 
+			center_x = center_x + diffx;
+			center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
+			center_z = center_z + diffz;
+			other.x = other.x - diffx;
+			other.y = other.y - diffy;
+			other.z = other.z - diffz;
+
 			 setCenter(center_x, center_y, center_z);
 			 ball.setCenter(other.x, other.y, other.z);
 			 //center 값 재조정 완료
-
-			 float vvx = center_x - other.x;
-			 float vvy = center_y - other.y;
-			 float vvz = center_z - other.z;
-
-			 //D3DXVEC3
-			 
-			 
-
-
-
-			 
-			 //setPower(spinx,spiny,spinz);
-			//ball.setPower(spoutx,spouty,spoutz);
-
-		
-			
-
-			 
-
-
-			
+			 D3DXVECTOR3 vThisNorm = D3DXVec3Dot(&getVelocity(), &vNorm) * vNorm;
+			 D3DXVECTOR3 vThisOrtho = getVelocity() - vThisNorm;
+			 D3DXVECTOR3 vBallNorm = D3DXVec3Dot(&ball.getVelocity(), &vNorm) * vNorm;
+			 D3DXVECTOR3 vBallOrtho = ball.getVelocity() - vBallNorm;
+			 D3DXVECTOR3 vThisNewVec = vBallNorm + vThisOrtho;
+			 D3DXVECTOR3 vBallNewVec = vThisNorm + vBallOrtho;
+			 setPower(vThisNewVec.x, vThisNewVec.y, vThisNewVec.z);
+			 ball.setPower(vBallNewVec.x, vBallNewVec.y, vBallNewVec.z);
 		}
 	}
 
