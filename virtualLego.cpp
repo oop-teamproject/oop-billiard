@@ -436,14 +436,14 @@ public:
         return true;
     }
 
-    void draw(IDirect3DDevice9* pDevice/*, const D3DXMATRIX& mWorld*/)
+    void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
     {
         if (NULL == pDevice)
             return;
         D3DXMATRIX m;
         D3DXMatrixTranslation(&m, m_lit.Position.x, m_lit.Position.y, m_lit.Position.z);
-		pDevice->SetTransform(D3DTS_WORLD, &m/*&mWorld*/);
-		//pDevice->MultiplyTransform(D3DTS_WORLD, &m);
+		pDevice->SetTransform(D3DTS_WORLD, &mWorld);
+		pDevice->MultiplyTransform(D3DTS_WORLD, &m);
         pDevice->SetMaterial(&d3d::WHITE_MTRL);
         m_pMesh->DrawSubset(0);
     }
@@ -594,7 +594,7 @@ bool Display(float timeDelta)
 			g_sphere[i].draw(Device, g_mWorld);
 		}
 		g_target_blueball.draw(Device, g_mWorld);
-        g_light.draw(Device/*, g_mWorld*/);
+        g_light.draw(Device, g_mWorld);
 		
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
