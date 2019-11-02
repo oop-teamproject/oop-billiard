@@ -51,6 +51,7 @@ private :
 	float					center_x, center_y, center_z;
     float                   m_radius;
 	float					m_velocity_x;
+	float					m_velocity_y;
 	float					m_velocity_z;
 
 public:
@@ -60,6 +61,7 @@ public:
         ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
         m_radius = 0; //쓰지 않는다. 더미데이터. 업데이트를 하던가 해야지
 		m_velocity_x = 0;
+		m_velocity_y = 0;
 		m_velocity_z = 0;
         m_pSphereMesh = NULL;
     }
@@ -122,16 +124,58 @@ public:
 			m_mtrl.Ambient = d3d::CYAN;
 			m_mtrl.Diffuse = d3d::CYAN;
 			m_mtrl.Specular = d3d::CYAN;
-			//구체가 겹쳐있을 경우 얼마나 겹쳐있는지 계산하고
-			//접하는 점으로 이동시킨 다음 돌아가야 하는 시간을 계산
-			//TODO::지훈 파이팅!!
-			
-			//------------------------------------------
-			//구끼리 접한 상태
-			//속도 업데이트
 
-			//-------------------------------------------
-			//아까 돌아간 시간만큼 주어진 속도로 이동
+			D3DXVECTOR3 other = ball.getCenter();
+			float dx = center_x - other.x;
+			float dy = center_y - other.y;
+			float dz = center_z - other.z;
+			float dsum = sqrt((dx * dx) + (dy * dy) + (dz * dz));
+			float diffx, diffy, diffz;
+			if (dsum != 0)
+			{
+				 diffx = getRadius() * dx / dsum - dx / 2;
+				 diffy = getRadius() * dy / dsum - dy / 2;
+				 diffz = getRadius() * dz / dsum - dz / 2;
+			};
+			if (dsum == 0)
+			{
+				diffx = getRadius()/2;//// 원래의 xyz 좌표의 차이
+				diffy = getRadius()/2;
+				diffz = getRadius()/2;
+
+			};
+				center_x = center_x + diffx;
+				center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
+				center_z = center_z + diffz;
+				other.x = other.x - diffx;
+				other.y = other.y - diffy;
+				other.z = other.z- diffz;
+			 
+			 setCenter(center_x, center_y, center_z);
+			 ball.setCenter(other.x, other.y, other.z);
+			 //center 값 재조정 완료
+
+			 float vvx = center_x - other.x;
+			 float vvy = center_y - other.y;
+			 float vvz = center_z - other.z;
+
+			 D3DXVEC3
+			 
+			 
+
+
+
+			 
+			 setPower(spinx,spiny,spinz);
+			ball.setPower(spoutx,spouty,spoutz);
+
+		
+			
+
+			 
+
+
+			
 		}
 	}
 
@@ -169,11 +213,17 @@ public:
 	}
 
 	double getVelocity_X() { return this->m_velocity_x;	}
+	double getVelocity_Y() { return this->m_velocity_y; }
 	double getVelocity_Z() { return this->m_velocity_z; }
+	D3DXVECTOR3 getVelocity() { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
 
-	void setPower(double vx, double vz)
+	void setPower(double vx, double vz) {
+		setPower(vx, getVelocity_Y(), vz);
+	}
+	void setPower(double vx,double vy, double vz)
 	{
 		this->m_velocity_x = vx;
+		this->m_velocity_y = vy;
 		this->m_velocity_z = vz;
 	}
 
