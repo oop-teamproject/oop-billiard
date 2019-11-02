@@ -161,9 +161,10 @@ public:
 		this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
 	}
 
-	double getVelocity_X() { return this->m_velocity_x;	}
-	double getVelocity_Y() { return this->m_velocity_y; }
-	double getVelocity_Z() { return this->m_velocity_z; }
+	double getVelocity_X() const { return this->m_velocity_x; }
+	double getVelocity_Y() const { return this->m_velocity_y; }
+	double getVelocity_Z() const { return this->m_velocity_z; }
+	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
 
 	void setPower(double vx, double vz)
 	{
@@ -322,19 +323,45 @@ public:
 		/*test code*/
 		if (!hasIntersected(ball))
 		{
-			m_mtrl.Ambient = d3d::DARKRED;
-			m_mtrl.Diffuse = d3d::DARKRED;
-			m_mtrl.Specular = d3d::DARKRED;
 			return;
 		}
 		else
 		{
-			m_mtrl.Ambient = d3d::CYAN;
-			m_mtrl.Diffuse = d3d::CYAN;
-			m_mtrl.Specular = d3d::CYAN;
+			//공과 벽이 겹칠 경우 뒤로 조금 돌린다.
+			//만약 공이 전혀 움직이지 않고 있던 경우 모순이 생기므로 속도를 임의로 설정한다.
+			if (ball.getVelocity() == D3DXVECTOR3(0, 0, 0))
+				ball.setPower(1, 0, 0);
 
+			D3DXVECTOR3 prevPos = ball.getCenter() - ball.getVelocity();
+			D3DXVECTOR3 currentPos = ball.getCenter();
+			D3DXVECTOR3 closest = closestPoint(ball);
+			float prevDist;
+			float currDist;
+			prevDist = D3DXVec3Length(&(closest - prevPos));
+			currDist = D3DXVec3Length(&(closest - currentPos));
+			float multiplier = (ball.getRadius() - prevDist) / (currDist - prevDist);
+			ball.setCenter(prevPos.x + multiplier * ball.getVelocity_X(), prevPos.y + multiplier * ball.getVelocity_Y(), prevPos.z + multiplier * ball.getVelocity_Z());
+
+			//새로 속도를 계산한다.
+			D3DXVECTOR3 ballToWall = closest - ball.getCenter();
+			if (ballToWall == D3DXVECTOR3(0,0,0)) //closest와 구의 중심이 완전히 겹쳐 Normalize할 수 없는 경우는 임의의 벡터를 쓴다.
+				ballToWall.x = 1.0f;
+			D3DXVec3Normalize(&ballToWall, &ballToWall);
+			D3DXVECTOR3 vTowardWall;
+			vTowardWall = ballToWall * D3DXVec3Dot(&ballToWall, &ball.getVelocity());
+			D3DXVECTOR3 vOrthogonal = ball.getVelocity() - vTowardWall;
+			vTowardWall = -vTowardWall;
+			D3DXVECTOR3 newVelocity = vTowardWall + vOrthogonal;
+			if (newVelocity.y <= 0.1)
+				ball.setPower(newVelocity.x, 0, newVelocity.z);
+			else
+				ball.setPower(newVelocity.x, newVelocity.y, newVelocity.z);
+
+			//뒤로 돌렸던 만큼 다시 앞으로 이동시킨다.
+			currentPos = ball.getCenter();
+			currentPos += (1 - multiplier) * ball.getVelocity();
+			ball.setCenter(currentPos.x, currentPos.y, currentPos.z);
 		}
-		// Insert your code here.
 	}    
 	
 	void setPosition(float x, float y, float z)
