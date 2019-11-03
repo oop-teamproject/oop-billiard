@@ -10,9 +10,7 @@ class CSphere {
 private:
 	float					center_x, center_y, center_z;
 	float                   m_radius;
-	float					m_velocity_x;
-	float					m_velocity_y;
-	float					m_velocity_z;
+	float					m_velocity_x, m_velocity_y, m_velocity_z;
 
 public:
 	CSphere(void);
