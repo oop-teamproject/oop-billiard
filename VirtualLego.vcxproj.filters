@@ -24,12 +24,18 @@
     <ClCompile Include="CSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CWall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CWall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
