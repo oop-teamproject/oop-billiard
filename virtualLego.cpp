@@ -14,6 +14,7 @@
 #include "CSphere.h"
 #include "CWall.h"
 #include "CLight.h"
+#include "CStick.h"
 #include <d3dx9.h>
 #include <vector>
 #include <ctime>
@@ -35,7 +36,7 @@ const D3DXCOLOR sphereColor[4] = {d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE};
 // -----------------------------------------------------------------------------
 // Transform matrices
 // -----------------------------------------------------------------------------
-D3DXMATRIX g_mWorld;
+D3DXMATRIX g_mWorld;  
 D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
 
@@ -53,6 +54,7 @@ CWall	g_legowall[4];
 CSphere	g_sphere[4];
 CSphere	g_target_blueball;
 CLight	g_light;
+CStick  g_stick;
 
 double g_camera_pos[3] = {0.0, 5.0, -8.0};
 
@@ -88,6 +90,8 @@ bool Setup()
 	if (false == g_legowall[3].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
 	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
 
+	if (false == g_stick.create(Device, d3d::DARKRED)) return false;
+	g_stick.setPosition(0.0f, 2.0f, 0.0f);
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
 		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
@@ -141,6 +145,7 @@ void Cleanup(void)
 	for(int i = 0 ; i < 4; i++) {
 		g_legowall[i].destroy();
 	}
+	g_stick.destroy();
     destroyAllLegoBlock();
     g_light.destroy();
 }
@@ -179,7 +184,9 @@ bool Display(float timeDelta)
 			g_legowall[i].draw(Device, g_mWorld);
 			g_sphere[i].draw(Device, g_mWorld);
 		}
+		g_stick.draw(Device, g_mWorld);
 		g_target_blueball.draw(Device, g_mWorld);
+		//g_light.setLight(Device, g_mWorld);
         g_light.draw(Device/*, g_mWorld*/);
 		
 		Device->EndScene();
