@@ -131,12 +131,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CLight.cpp" />
+    <ClCompile Include="CSphere.cpp" />
+    <ClCompile Include="CWall.cpp" />
     <ClCompile Include="d3dUtility.cpp" />
     <ClCompile Include="virtualLego.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CLight.h" />
+    <ClInclude Include="CSphere.h" />
+    <ClInclude Include="CStick.h" />
+    <ClInclude Include="CWall.h" />
     <ClInclude Include="d3dUtility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
