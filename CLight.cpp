@@ -58,13 +58,13 @@ bool CLight::setLight(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 	return true;
 }
 
-void CLight::draw(IDirect3DDevice9* pDevice/*, const D3DXMATRIX& mWorld*/)
+void CLight::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 {
 	if (NULL == pDevice)
 		return;
 	D3DXMATRIX m;
 	D3DXMatrixTranslation(&m, m_lit.Position.x, m_lit.Position.y, m_lit.Position.z);
-	pDevice->SetTransform(D3DTS_WORLD, &m/*&mWorld*/);
+	pDevice->SetTransform(D3DTS_WORLD, &m);
 	//pDevice->MultiplyTransform(D3DTS_WORLD, &m);
 	pDevice->SetMaterial(&d3d::WHITE_MTRL);
 	m_pMesh->DrawSubset(0);

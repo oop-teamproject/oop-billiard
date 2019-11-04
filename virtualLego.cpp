@@ -186,8 +186,8 @@ bool Display(float timeDelta)
 		}
 		g_stick.draw(Device, g_mWorld);
 		g_target_blueball.draw(Device, g_mWorld);
-		//g_light.setLight(Device, g_mWorld);
-        g_light.draw(Device/*, g_mWorld*/);
+		g_light.setLight(Device, g_mWorld);
+        g_light.draw(Device, g_mWorld);
 		
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
