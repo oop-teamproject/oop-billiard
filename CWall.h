@@ -15,9 +15,6 @@ public:
 	bool create(IDirect3DDevice9* pDevice, float ix, float iz, float iwidth, float iheight, float idepth, D3DXCOLOR color);
 	void destroy(void);
 	void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld);
-private:
-	float square(float X) { return X * X; }
-public:
 	bool hasIntersected(CSphere& ball) const;
 	D3DXVECTOR3 closestPoint(CSphere& ball) const;
 	void hitBy(CSphere& ball);

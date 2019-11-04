@@ -85,10 +85,10 @@ void CSphere::hitBy(CSphere& ball)
 			diffz = getRadius() / 2;
 		};
 		center_x = center_x + diffx;
-		center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
+		//center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
 		center_z = center_z + diffz;
 		other.x = other.x - diffx;
-		other.y = other.y - diffy;
+		//other.y = other.y - diffy;
 		other.z = other.z - diffz;
 		setCenter(center_x, center_y, center_z);
 		ball.setCenter(other.x, other.y, other.z);

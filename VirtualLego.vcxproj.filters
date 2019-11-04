@@ -44,5 +44,8 @@
     <ClInclude Include="CLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CStick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
