@@ -55,9 +55,13 @@ public:
 		m_pBoundMesh->DrawSubset(0);
 	}
 	void setPosition(float x, float y, float z) {
-		m_x = x;
-		m_y = y;
-		m_z = z;
+		D3DXMATRIX m;
+		this->m_x = x;
+		this->m_y = y;
+		this->m_z = z;
+
+		D3DXMatrixTranslation(&m, x, y, z);
+		setLocalTransform(m);
 	}
 	void setDirection(float x, float y, float z) {
 		v_x = x;

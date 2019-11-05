@@ -2,8 +2,8 @@
 
 CSphere::CSphere(void)
 {
-	D3DXMatrixIdentity(&m_mLocal); //m_mLocal은 클래스 맨 밑바닥에 있다. 로컬 좌표 변환(?)
-	ZeroMemory(&m_mtrl, sizeof(m_mtrl)); //m_mtrl은 클래스 맨 밑바닥에 있다. 구체의 표면?
+	D3DXMatrixIdentity(&m_mLocal);
+	ZeroMemory(&m_mtrl, sizeof(m_mtrl));
 	m_radius = M_RADIUS;
 	m_velocity_x = 0;
 	m_velocity_y = 0;
@@ -48,12 +48,9 @@ void CSphere::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 
 bool CSphere::hasIntersected(CSphere& ball)
 {
-	D3DXVECTOR3 other = ball.getCenter();
-	float dx = center_x - other.x;
-	float dy = center_y - other.y;
-	float dz = center_z - other.z;
+	D3DXVECTOR3 distance = getCenter() - ball.getCenter();
 	float sumRad = getRadius() + ball.getRadius();
-	return (sumRad * sumRad) >= (dx * dx) + (dy * dy) + (dz * dz);
+	return sumRad >= D3DXVec3Length(&distance);
 }
 
 void CSphere::hitBy(CSphere& ball)
@@ -106,7 +103,7 @@ void CSphere::hitBy(CSphere& ball)
 
 void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 {
-	const float TIME_SCALE = 3.3;
+	const float TIME_SCALE = 3.3f;
 	D3DXVECTOR3 cord = this->getCenter();
 	double vx = abs(this->getVelocity_X());
 	double vy = abs(this->getVelocity_Y());
@@ -126,7 +123,7 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
 }
 
-void CSphere::setPower(double vx, double vy, double vz)
+void CSphere::setPower(float vx, float vy, float vz)
 {
 	this->m_velocity_x = vx;
 	this->m_velocity_y = vy;

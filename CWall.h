@@ -12,7 +12,7 @@ public:
 	CWall(void);
 	~CWall(void);
 public:
-	bool create(IDirect3DDevice9* pDevice, float ix, float iz, float iwidth, float iheight, float idepth, D3DXCOLOR color);
+	bool create(IDirect3DDevice9* pDevice, float iwidth, float iheight, float idepth, D3DXCOLOR color);
 	void destroy(void);
 	void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld);
 	bool hasIntersected(CSphere& ball) const;

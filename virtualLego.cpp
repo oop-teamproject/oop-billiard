@@ -77,17 +77,17 @@ bool Setup()
     D3DXMatrixIdentity(&g_mProj);
 		
 	// create plane and set the position
-    if (false == g_legoPlane.create(Device, -1, -1, 9, 0.03f, 6, d3d::GREEN)) return false;
+    if (false == g_legoPlane.create(Device, 9, 0.03f, 6, d3d::GREEN)) return false;
     g_legoPlane.setPosition(0.0f, -0.0006f / 5, 0.0f);
 	
 	// create walls and set the position. note that there are four walls
-	if (false == g_legowall[0].create(Device, -1, -1, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
+	if (false == g_legowall[0].create(Device, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
 	g_legowall[0].setPosition(0.0f, 0.12f, 3.06f);
-	if (false == g_legowall[1].create(Device, -1, -1, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
+	if (false == g_legowall[1].create(Device, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
 	g_legowall[1].setPosition(0.0f, 0.12f, -3.06f);
-	if (false == g_legowall[2].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
+	if (false == g_legowall[2].create(Device, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
 	g_legowall[2].setPosition(4.56f, 0.12f, 0.0f);
-	if (false == g_legowall[3].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
+	if (false == g_legowall[3].create(Device, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
 	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
 
 	if (false == g_stick.create(Device, d3d::BLACK)) return false;
@@ -278,8 +278,8 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 isReset = true;
 				
 				if (LOWORD(wParam) & MK_RBUTTON) {
-					dx = (old_x - new_x);// * 0.01f;
-					dy = (old_y - new_y);// * 0.01f;
+					dx = (float)(old_x - new_x);// * 0.01f;
+					dy = (float)(old_y - new_y);// * 0.01f;
 		
 					D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
 					g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );

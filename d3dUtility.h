@@ -17,10 +17,7 @@
 #include <string>
 #include <limits>
 
-//#define INFINITY FLT_MAX
-
 #define EPSILON 0.001f
-#define INFINITY FLT_MAX
 
 
 namespace d3d

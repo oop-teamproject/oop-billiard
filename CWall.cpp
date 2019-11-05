@@ -14,7 +14,7 @@ CWall::CWall(void)
 	m_pBoundMesh = NULL;
 }
 CWall::~CWall(void) {}
-bool CWall::create(IDirect3DDevice9* pDevice, float ix, float iz, float iwidth, float iheight, float idepth, D3DXCOLOR color = d3d::WHITE)
+bool CWall::create(IDirect3DDevice9* pDevice, float iwidth, float iheight, float idepth, D3DXCOLOR color = d3d::WHITE)
 {
 	if (NULL == pDevice)
 		return false;
@@ -103,11 +103,7 @@ D3DXVECTOR3 CWall::closestPoint(CSphere& ball) const {
 
 void CWall::hitBy(CSphere& ball)
 {
-	/*test code*/
-	if (!hasIntersected(ball))
-	{
-		return;
-	}
+	if (!hasIntersected(ball)) return;
 	else
 	{
 		//공과 벽이 겹칠 경우 뒤로 조금 돌린다.
