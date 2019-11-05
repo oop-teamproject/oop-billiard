@@ -92,7 +92,6 @@ bool Setup()
 
 	if (false == g_stick.create(Device, d3d::BLACK)) return false;
 	g_stick.setPosition(0.0f, 2.0f, 0.0f);
-	g_stick.setDirection(0.0f, -1.0f, 0.0f);
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
 		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
@@ -178,7 +177,8 @@ bool Display(float timeDelta)
 				g_sphere[i].hitBy(g_sphere[j] /*TODO::, timeDelta*/);
 			}
 		}
-
+		D3DXVECTOR3 viewPoint = g_stick.getViewPoint();
+		g_stick.setDirection(viewPoint.x, viewPoint.y + 0.3f * timeDelta, viewPoint.z);
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
 		for (i=0;i<4;i++) 	{

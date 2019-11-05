@@ -51,6 +51,7 @@ public:
 			return;
 		pDevice->SetTransform(D3DTS_WORLD, &mWorld);
 		pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
+		pDevice->MultiplyTransform(D3DTS_WORLD, &m_mRotate);
 		pDevice->SetMaterial(&m_mtrl);
 		m_pBoundMesh->DrawSubset(0);
 	}
@@ -67,13 +68,13 @@ public:
 		v_x = x;
 		v_y = y;
 		v_z = z;
-		D3DXMATRIX mX;
-		D3DXMATRIX mY;
-		D3DXMATRIX mZ;
-		D3DXMatrixRotationY(&mX, x);
-		D3DXMatrixRotationX(&mY, y);
-		D3DXMatrixRotationX(&mZ, z);
-		m_mLocal = m_mLocal * mX * mY * mZ;
+		D3DXMATRIX vX;
+		D3DXMATRIX vY;
+		D3DXMATRIX vZ;
+		D3DXMatrixRotationX(&vX, x);
+		D3DXMatrixRotationY(&vY, y);
+		D3DXMatrixRotationZ(&vZ, z);
+		m_mRotate = vX * vY * vZ;
 	}
 
 	float getDistance() const { return distance; }
@@ -81,10 +82,12 @@ public:
 	float getY() const { return m_y; }
 	float getZ() const { return m_z; }
 	D3DXVECTOR3 getCenter(void) const { return D3DXVECTOR3(m_x, m_y, m_z); }
+	D3DXVECTOR3 getViewPoint(void) const { return D3DXVECTOR3(v_x, v_y, v_z); }
 private:
 	void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
 
 	D3DXMATRIX              m_mLocal;
+	D3DXMATRIX				m_mRotate;
 	D3DMATERIAL9            m_mtrl;
 	ID3DXMesh* m_pBoundMesh;
 };
