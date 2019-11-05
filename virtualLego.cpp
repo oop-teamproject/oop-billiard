@@ -29,7 +29,7 @@ const int Height = 768;
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
-const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
+const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {0.0f, 1.0f}}; 
 // initialize the color of each ball (ball0 ~ ball3)
 const D3DXCOLOR sphereColor[4] = {d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE};
 
@@ -177,8 +177,9 @@ bool Display(float timeDelta)
 				g_sphere[i].hitBy(g_sphere[j] /*TODO::, timeDelta*/);
 			}
 		}
-		D3DXVECTOR3 viewPoint = g_stick.getViewPoint();
-		g_stick.setDirection(viewPoint.x, viewPoint.y + 0.3f * timeDelta, viewPoint.z);
+		D3DXVECTOR3 viewPoint = g_sphere[3].getCenter();
+		g_stick.viewAt(viewPoint.x, viewPoint.y, viewPoint.z);
+		
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
 		for (i=0;i<4;i++) 	{

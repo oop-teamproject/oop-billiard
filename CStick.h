@@ -3,10 +3,11 @@
 
 #include "d3dUtility.h"
 #include "CSphere.h"
-
+#include <cmath>
+#define PI 3.14159265
 class CStick {
 private:
-	float                   v_x, v_y, v_z; //당구채가 가리키는 방향.
+	float                   v_x, v_y, v_z; //당구채가 가리키는 방향(라디안). 각각 x, y, z축으로 회전한 정도
 	float					m_x, m_y, m_z; //당구채가 가리키는 위치.
 	float					distance;	   //(당구채 머리쪽 끝이 현재 있는 위치)와 m 사이의 거리
 public:
@@ -35,7 +36,7 @@ public:
 			m_mtrl.Emissive = d3d::BLACK;
 			m_mtrl.Power = 5.0f;
 
-			if (FAILED(D3DXCreateCylinder(pDevice, 0.04f, 0.16f, 4.0f, 20, 20, &m_pBoundMesh, NULL)))
+			if (FAILED(D3DXCreateCylinder(pDevice, 0.16f, 0.04f, 4.0f, 20, 20, &m_pBoundMesh, NULL)))
 				return false;
 			return true;
 		}
@@ -75,6 +76,25 @@ public:
 		D3DXMatrixRotationY(&vY, y);
 		D3DXMatrixRotationZ(&vZ, z);
 		m_mRotate = vX * vY * vZ;
+	}
+	void viewAt(float x, float y, float z) {
+		//아직 완전히 구현되지 않음. phi는 얼추 맞는 것 같은데 theta가 잘 안맞는다.
+		x -= m_x;
+		y -= m_y;
+		z -= m_z;
+		if (y == 0 && z == 0) return;
+		if (x == 0 && z == 0) return;
+		float theta = std::atan2f(y, z); //yz평면에 내렸을 때 x축 방향으로 회전한 각도
+		float phi = std::atan2f(x, z); //xz평면에 내렸을 때 y축 방향으로 회전한 각도
+		D3DXMATRIX vX;
+		D3DXMATRIX vY;
+		if(z < 0)//0 < theta < 2PI
+			D3DXMatrixRotationX(&vX, -theta + PI);
+		else
+			D3DXMatrixRotationX(&vX, -theta);
+		D3DXMatrixRotationY(&vY, phi);
+
+		m_mRotate = vY * vX;
 	}
 
 	float getDistance() const { return distance; }
