@@ -35,7 +35,7 @@ public:
 			m_mtrl.Emissive = d3d::BLACK;
 			m_mtrl.Power = 5.0f;
 
-			if (FAILED(D3DXCreateCylinder(pDevice, 0.07f, 0.20f, 17.0f, 20, 20, &m_pBoundMesh, NULL)))
+			if (FAILED(D3DXCreateCylinder(pDevice, 0.04f, 0.16f, 4.0f, 20, 20, &m_pBoundMesh, NULL)))
 				return false;
 			return true;
 		}

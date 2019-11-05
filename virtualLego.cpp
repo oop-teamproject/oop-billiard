@@ -90,7 +90,7 @@ bool Setup()
 	if (false == g_legowall[3].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
 	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
 
-	if (false == g_stick.create(Device, d3d::DARKRED)) return false;
+	if (false == g_stick.create(Device, d3d::BLACK)) return false;
 	g_stick.setPosition(0.0f, 2.0f, 0.0f);
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
