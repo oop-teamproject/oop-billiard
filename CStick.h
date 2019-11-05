@@ -67,6 +67,13 @@ public:
 		v_x = x;
 		v_y = y;
 		v_z = z;
+		D3DXMATRIX mX;
+		D3DXMATRIX mY;
+		D3DXMATRIX mZ;
+		D3DXMatrixRotationY(&mX, x);
+		D3DXMatrixRotationX(&mY, y);
+		D3DXMatrixRotationX(&mZ, z);
+		m_mLocal = m_mLocal * mX * mY * mZ;
 	}
 
 	float getDistance() const { return distance; }

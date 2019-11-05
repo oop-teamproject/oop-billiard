@@ -92,6 +92,7 @@ bool Setup()
 
 	if (false == g_stick.create(Device, d3d::BLACK)) return false;
 	g_stick.setPosition(0.0f, 2.0f, 0.0f);
+	g_stick.setDirection(0.0f, -1.0f, 0.0f);
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
 		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
