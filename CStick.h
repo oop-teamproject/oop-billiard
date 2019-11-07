@@ -77,24 +77,14 @@ public:
 		D3DXMatrixRotationZ(&vZ, z);
 		m_mRotate = vX * vY * vZ;
 	}
-	void viewAt(float x, float y, float z) {
-		//아직 완전히 구현되지 않음. phi는 얼추 맞는 것 같은데 theta가 잘 안맞는다.
+	void viewAt(float x, float z) {
 		x -= m_x;
-		y -= m_y;
 		z -= m_z;
-		if (y == 0 && z == 0) return;
 		if (x == 0 && z == 0) return;
-		float theta = std::atan2f(y, z); //yz평면에 내렸을 때 x축 방향으로 회전한 각도
 		float phi = std::atan2f(x, z); //xz평면에 내렸을 때 y축 방향으로 회전한 각도
-		D3DXMATRIX vX;
 		D3DXMATRIX vY;
-		if(z < 0)//0 < theta < 2PI
-			D3DXMatrixRotationX(&vX, -theta + PI);
-		else
-			D3DXMatrixRotationX(&vX, -theta);
 		D3DXMatrixRotationY(&vY, phi);
-
-		m_mRotate = vY * vX;
+		m_mRotate = vY;
 	}
 
 	float getDistance() const { return distance; }

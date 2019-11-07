@@ -56,6 +56,7 @@ CSphere	g_target_blueball;
 CLight	g_light;
 CStick  g_stick;
 
+
 double g_camera_pos[3] = {0.0, 5.0, -8.0};
 
 // -----------------------------------------------------------------------------
@@ -91,7 +92,7 @@ bool Setup()
 	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
 
 	if (false == g_stick.create(Device, d3d::BLACK)) return false;
-	g_stick.setPosition(0.0f, 2.0f, 0.0f);
+	g_stick.setPosition(0.0f, M_RADIUS, 0.0f);
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
 		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
@@ -178,7 +179,7 @@ bool Display(float timeDelta)
 			}
 		}
 		D3DXVECTOR3 viewPoint = g_sphere[3].getCenter();
-		g_stick.viewAt(viewPoint.x, viewPoint.y, viewPoint.z);
+		g_stick.viewAt(viewPoint.x, viewPoint.z);
 		
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
