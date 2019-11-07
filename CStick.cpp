@@ -1,5 +1,5 @@
 #include "CStick.h"
-
+#include <cmath>
 CStick::CStick(void) {
 	D3DXMatrixIdentity(&m_mLocal);
 	ZeroMemory(&m_mtrl, sizeof(m_mtrl));
@@ -7,7 +7,7 @@ CStick::CStick(void) {
 	m_x = 0;
 	m_y = 0;
 	m_z = 0;
-	distance = 0;
+	visible = true;
 	m_pBoundMesh = NULL;
 }
 CStick::~CStick(void) {}
@@ -34,6 +34,8 @@ void CStick::destroy(void) {
 }
 void CStick::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld) {
 	if (NULL == pDevice)
+		return;
+	if (!visible)
 		return;
 	pDevice->SetTransform(D3DTS_WORLD, &mWorld);
 	pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
@@ -62,4 +64,16 @@ void CStick::viewAt(float x, float z) {
 	D3DXMATRIX vY;
 	D3DXMatrixRotationY(&vY, phi);
 	m_mRotate = vY;
+}
+
+float CStick::setDistance(float dist)
+{
+	return 0.0f;
+}
+
+void CStick::setPosToward(float x, float z, float distance, float direction = 0)
+{
+	float len = distance + length / 2;
+	setPosition(x - std::sin(direction) * len, this->getY(), z - std::cos(direction) * len);
+	setDirection(direction);
 }

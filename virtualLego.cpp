@@ -91,14 +91,14 @@ bool Setup()
 	if (false == g_legowall[3].create(Device, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
 	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
 
-	if (false == g_stick.create(Device, d3d::BLACK)) return false;
-	g_stick.setPosition(0.0f, M_RADIUS, 0.0f);
+	if (false == g_stick.create(Device, D3DXCOLOR(1.0f, 0.8f, 0.25f, 1.0f))) return false;
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
 		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
 		g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS , spherePos[i][1]);
 		g_sphere[i].setPower(0,0);
 	}
+	g_stick.setPosToward(g_sphere[3].getCenter().x, g_sphere[3].getCenter().z, 3.0f, 0);
 	
 	// create blue ball for set direction
     if (false == g_target_blueball.create(Device, d3d::BLUE)) return false;
@@ -168,9 +168,13 @@ bool Display(float timeDelta)
 		// update the position of each ball. during update, check whether each ball hit by walls.
 		for( i = 0; i < 4; i++) {
 			g_sphere[i].ballUpdate(timeDelta);
-			for(j = 0; j < 4; j++){ g_legowall[i].hitBy(g_sphere[j]); }
+			for(j = 0; j < 4; j++){
+				g_legowall[i].hitBy(g_sphere[j]);
+			}
 		}
-
+		if (g_sphere[3].getVelocity_X() == 0 && g_sphere[3].getVelocity_Y() == 0)
+			g_stick.setVisible(true);
+		else g_stick.setVisible(false);
 		// check whether any two balls hit together and update the direction of balls
 		for(i = 0 ;i < 4; i++){
 			for(j = 0 ; j < 4; j++) {
@@ -178,8 +182,8 @@ bool Display(float timeDelta)
 				g_sphere[i].hitBy(g_sphere[j] /*TODO::, timeDelta*/);
 			}
 		}
-		D3DXVECTOR3 viewPoint = g_sphere[3].getCenter();
-		g_stick.viewAt(viewPoint.x, viewPoint.z);
+		//D3DXVECTOR3 viewPoint = g_sphere[3].getCenter();
+		//g_stick.setPosToward(viewPoint.x, viewPoint.z, 2.8f, g_stick.getDirection() + 0.7f * timeDelta);
 		
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
@@ -285,7 +289,9 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					dy = (float)(old_y - new_y);// * 0.01f;
 		
 					D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
+					D3DXVECTOR3 coord3d2 = g_sphere[3].getCenter();
 					g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );
+					g_stick.setPosToward(coord3d2.x, coord3d2.z, 3.0f, g_stick.getDirection() + dx * (-0.007f));
 				}
 				old_x = new_x;
 				old_y = new_y;
