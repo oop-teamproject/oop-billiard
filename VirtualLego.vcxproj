@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="CLight.cpp" />
     <ClCompile Include="CSphere.cpp" />
+    <ClCompile Include="CStick.cpp" />
     <ClCompile Include="CWall.cpp" />
     <ClCompile Include="d3dUtility.cpp" />
     <ClCompile Include="virtualLego.cpp">
