@@ -30,6 +30,9 @@
     <ClCompile Include="CLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CStick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dUtility.h">
