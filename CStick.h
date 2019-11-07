@@ -29,7 +29,7 @@ public:
 	inline float getDirection() const { return v_y; }
 	inline D3DXVECTOR3 getCenter(void) const { return D3DXVECTOR3(m_x, m_y, m_z); }
 	void setVisible(bool isTrue) { visible = isTrue; }
-	void setPosToward(float x, float z, float distance, float direction); //set position toward (x, m_y, z). distance between cue and ball are distance, and rotated toward +y from +x axis by direction rad.
+	void setPosToward(float x, float y, float z, float distance, float direction); //set position toward (x, m_y, z). distance between cue and ball are distance, and rotated toward +y from +x axis by direction rad.
 private:
 	inline void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
 

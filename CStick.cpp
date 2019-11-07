@@ -71,9 +71,9 @@ float CStick::setDistance(float dist)
 	return 0.0f;
 }
 
-void CStick::setPosToward(float x, float z, float distance, float direction = 0)
+void CStick::setPosToward(float x, float y, float z, float distance, float direction = 0)
 {
 	float len = distance + length / 2;
-	setPosition(x - std::sin(direction) * len, this->getY(), z - std::cos(direction) * len);
+	setPosition(x - std::sin(direction) * len, y, z - std::cos(direction) * len);
 	setDirection(direction);
 }
