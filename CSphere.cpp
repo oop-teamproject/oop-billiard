@@ -8,6 +8,9 @@ CSphere::CSphere(void)
 	m_velocity_x = 0;
 	m_velocity_y = 0;
 	m_velocity_z = 0;
+	ballStopped = 0;
+	id = 0;
+	turncheck = 0;
 	m_pSphereMesh = NULL;
 }
 CSphere::~CSphere(void) {}
@@ -48,6 +51,10 @@ void CSphere::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 
 bool CSphere::hasIntersected(CSphere& ball)
 {
+	if (ball.getturncheck() == 1)
+	{
+		setid(1);
+	}
 	D3DXVECTOR3 distance = getCenter() - ball.getCenter();
 	float sumRad = getRadius() + ball.getRadius();
 	return sumRad >= D3DXVec3Length(&distance);
@@ -58,7 +65,10 @@ void CSphere::hitBy(CSphere& ball)
 	if (!hasIntersected(ball))
 		return;
 	else
-	{
+	{    
+
+		
+
 		D3DXVECTOR3 other = ball.getCenter();
 		D3DXVECTOR3 vNorm = getCenter() - ball.getCenter();
 		D3DXVec3Normalize(&vNorm, &vNorm);
@@ -108,6 +118,8 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	double vx = abs(this->getVelocity_X());
 	double vy = abs(this->getVelocity_Y());
 	double vz = abs(this->getVelocity_Z());
+	double checkx = vx;
+	
 	if (vx > 0.01 || vy > 0.01 || vz > 0.01)
 	{
 		float tX = cord.x + TIME_SCALE * timeDiff * m_velocity_x;
@@ -115,12 +127,46 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 		float tZ = cord.z + TIME_SCALE * timeDiff * m_velocity_z;
 		this->setCenter(tX, tY, tZ);
 	}
-	else { this->setPower(0, 0); }
+	else { this->setPower(0, 0);
+	if (checkx != 0 && getVelocity_X() == 0)
+	{
+		setballStopped(1);
+	}
+	}
+	
+	
 	//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
 	double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
 	if (rate < 0)
 		rate = 0;
+	
+	
 	this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
+	
+	//공이멈추는 순간에는 공이속력을줄이기전에는 속력이 0 이상이기에 그전값과 줄인후에 값을 봐서 공이멈췄는지 아닌지 체크하는것
+		
+
+
+	
+	
+
+	
+}
+void CSphere::setturncheck(int tck)//turncheck set (지금누구의턴인지)
+{
+	this->turncheck = tck;
+
+
+}
+void CSphere::setid(int cid)// 지금의 턴인  ball과 충돌했는지 아닌지
+{
+	this->id = cid;
+}
+void CSphere::setballStopped(int Sx) // ball이멈췄는지아닌지
+{
+	this->ballStopped=Sx;
+
+
 }
 
 void CSphere::setPower(float vx, float vy, float vz)

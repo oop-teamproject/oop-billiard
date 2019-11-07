@@ -11,7 +11,9 @@ private:
 	float					center_x, center_y, center_z;
 	float                   m_radius;
 	float					m_velocity_x, m_velocity_y, m_velocity_z;
-
+	int					    ballStopped;		   //if the ball has been stopped after hit the ball
+	int                     id;                    // id=1; ball's turn id=0; not his turn; if the ball intersected with id=1; ball it can
+	int					    turncheck;             // Which ball is the turn; turncheck=1 is his turn turncheck=0; is not
 public:
 	CSphere(void);
 	~CSphere(void);
@@ -26,10 +28,16 @@ public:
 	void hitBy(CSphere& ball);
 
 	void ballUpdate(float timeDiff);
+	void setballStopped(int Sx);
+	void setturncheck(int tck);
+	void setid(int cid);
 
 	float getVelocity_X() const { return this->m_velocity_x; }
 	float getVelocity_Y() const { return this->m_velocity_y; }
 	float getVelocity_Z() const { return this->m_velocity_z; }
+	float getballStopped() const { return this->ballStopped; }
+	float getid() const { return this->id; }
+	float getturncheck() const { return this->turncheck;}
 	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
 
 	inline void setPower(float vx, float vz) { setPower(vx, getVelocity_Y(), vz); }

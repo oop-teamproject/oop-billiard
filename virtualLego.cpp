@@ -102,7 +102,9 @@ bool Setup()
 	// create blue ball for set direction
     if (false == g_target_blueball.create(Device, d3d::BLUE)) return false;
 	g_target_blueball.setCenter(.0f, (float)M_RADIUS , .0f);
-	
+
+	g_sphere[3].setturncheck(1);
+
 	// light setting 
     D3DLIGHT9 lit;
     ::ZeroMemory(&lit, sizeof(lit));
@@ -194,7 +196,163 @@ bool Display(float timeDelta)
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
 		Device->SetTexture( 0, NULL );
+		
+		
+		if (g_sphere[1].getballStopped() == 1 && g_sphere[2].getballStopped() == 1 && g_sphere[3].getballStopped() == 1 && g_sphere[0].getballStopped() == 1)
+		{
+
+
+
+			//만약 모든 공들이 멈췄을때 scount를 검사하여 경우의수를 나눈다.//노란공이 2번
+			//g_sphere[2] 노란공 g_sphere[3]=흰공  
+			if (g_sphere[1].getid() == 1 && g_sphere[0].getid() == 1)//나머지 두공 다맞았을때
+			{
+				if (g_sphere[3].getturncheck() == 1)//흰공턴이었을때
+				{
+					if (g_sphere[2].getid() == 1)//노란공이 맞았을때
+					{
+						g_sphere[3].setturncheck(0);
+						g_sphere[2].setturncheck(1);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						//score--  상대턴
+					}
+					else  // 노란공이 안맞았을때
+					{
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+					   //score++ 아직도 내턴 
+					}
+				
+				}
+				if (g_sphere[2].getturncheck() == 1) //노란공턴이었을때 
+				{
+					if (g_sphere[3].getid() == 1)// 흰공이 맞았을때
+					{
+						g_sphere[2].setturncheck(0);
+						g_sphere[3].setturncheck(1);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+					//score -- 상대턴
+					
+					}
+					else
+					{
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						//score++ 내턴
+					}
+				
+				
+				
+				}
+					
+			
+			}
+
+
+
+			if ((g_sphere[1].getid() == 1) != (g_sphere[0].getid() == 1)) // 나머지두공중 하나만 맞았을때
+			{
+				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
+				{
+					if (g_sphere[3].getid() == 1) // 흰공이 맞았을때
+					{
+						g_sphere[3].setturncheck(1);
+						g_sphere[2].setturncheck(0);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						//score-- 턴넘어감
+					}
+					else
+					{
+						g_sphere[3].setturncheck(1);
+						g_sphere[2].setturncheck(0);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						// 점수안깍이고 턴만넘어감
+					}
+
+				}
+				if (g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
+				{
+					if (g_sphere[2].getid() == 1) // 노란공이 맞았을때
+					{
+						g_sphere[2].setturncheck(1);
+						g_sphere[3].setturncheck(0);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						//score-- 턴넘어감
+					}
+					else//노란공이 안맞았을때
+					{
+						g_sphere[2].setturncheck(1);
+						g_sphere[3].setturncheck(0);
+						for (i = 0; i < 4; i++) {
+							g_sphere[i].setballStopped(0);
+							g_sphere[i].setid(0);
+						}
+						// 점수안깍이고 턴만넘어감
+					}
+
+				}
+				
+			
+			}
+
+
+			if (g_sphere[1].getid() == 0 && g_sphere[0].getid() == 0)
+			{
+				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
+				{
+					g_sphere[2].setturncheck(0);
+					g_sphere[3].setturncheck(1);
+					for (i = 0; i < 4; i++) {
+						g_sphere[i].setballStopped(0);
+						g_sphere[i].setid(0);
+					}
+					//score -- 턴넘어감
+
+				}
+				if(g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
+				{
+					g_sphere[3].setturncheck(0);
+					g_sphere[2].setturncheck(1);
+					for (i = 0; i < 4; i++) {
+						g_sphere[i].setballStopped(0);
+						g_sphere[i].setid(0);
+					}
+					//score -- 턴넘어감
+
+				}
+			
+			
+			}
+			// g-sphere[1].id=1 이고 g_sphere[4].id=1 이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +1 후 자신의턴
+			// g-sphere[1].id와 g_sphere[4].id 값중 하나가 1이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +0 후 상대턴
+			// 위의 경우가 둘다 아닐경우 -1 하고 상대턴
+
+			
+
+		};
+	
+
 	}
+
 	return true;
 }
 
@@ -214,29 +372,49 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 	case WM_KEYDOWN:
         {
-            switch (wParam) {
-            case VK_ESCAPE:
-				::DestroyWindow(hwnd);
-                break;
-            case VK_RETURN:
-                if (NULL != Device) {
-                    wire = !wire;
-                    Device->SetRenderState(D3DRS_FILLMODE,
-                        (wire ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
-                }
-                break;
-            case VK_SPACE:
-				
-				D3DXVECTOR3 targetpos = g_target_blueball.getCenter();
-				D3DXVECTOR3	whitepos = g_sphere[3].getCenter();
-				double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
-					pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
-				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
-				if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 사분면
-				if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0){ theta = PI + theta; } // 3 사분면
-				double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
-				g_sphere[3].setPower(distance * cos(theta), distance * sin(theta));
+		switch (wParam) {
+		case VK_ESCAPE:
+			::DestroyWindow(hwnd);
+			break;
+		case VK_RETURN:
+			if (NULL != Device) {
+				wire = !wire;
+				Device->SetRenderState(D3DRS_FILLMODE,
+					(wire ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
+			}
+			break;
+		case VK_SPACE:
 
+			D3DXVECTOR3 targetpos = g_target_blueball.getCenter();
+			// 누구의공인지 체크한걸 가져온다 . 흰공일경우 g_sphere[3]이고 아닐경우 g_sphere[2] 노란공..
+
+
+
+
+			D3DXVECTOR3	whitepos = g_sphere[3].getCenter();
+
+			if (g_sphere[2].getturncheck() == 1)
+			{
+					whitepos = g_sphere[2].getCenter();
+			}
+
+
+			double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
+				pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
+			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
+			if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 사분면
+			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0) { theta = PI + theta; } // 3 사분면
+			double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
+			if (g_sphere[2].getturncheck() == 0)
+			 {
+			   g_sphere[3].setPower(distance * cos(theta), distance * sin(theta));
+		     }
+			if (g_sphere[2].getturncheck() == 1)
+				{
+					g_sphere[2].setPower(distance* cos(theta), distance* sin(theta));
+				}
+					
+				
 				break;
 
 			}
