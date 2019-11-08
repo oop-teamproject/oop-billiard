@@ -22,7 +22,6 @@ public:
 	void setDirection(float y);
 	void viewAt(float x, float z);
 
-	float setDistance(float dist);
 	inline float getX() const { return m_x; }
 	inline float getY() const { return m_y; }
 	inline float getZ() const { return m_z; }

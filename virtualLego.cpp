@@ -98,7 +98,7 @@ bool Setup()
 		g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS , spherePos[i][1]);
 		g_sphere[i].setPower(0,0);
 	}
-	g_stick.setPosToward(g_sphere[3].getCenter().x, g_sphere[3].getCenter().y, g_sphere[3].getCenter().z, 3.0f, 0);
+	g_stick.setPosToward(g_sphere[3].getCenter().x, g_sphere[3].getCenter().y, g_sphere[3].getCenter().z, 1.0f, 0);
 	
 	// create blue ball for set direction
     if (false == g_target_blueball.create(Device, d3d::BLUE)) return false;
@@ -368,6 +368,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     static int old_x = 0;
     static int old_y = 0;
     static enum { WORLD_MOVE, LIGHT_MOVE, BLOCK_MOVE } move = WORLD_MOVE;
+	static float power = 1.0f;
 	
 	switch( msg ) {
 	case WM_DESTROY:
@@ -469,7 +470,9 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
 					D3DXVECTOR3 coord3d2 = g_sphere[3].getCenter();
 					g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );
-					g_stick.setPosToward(coord3d2.x, coord3d2.y, coord3d2.z, 3.0f, g_stick.getDirection() + dx * (-0.007f));
+					power += dy * (-0.007f);
+					if (power < M_RADIUS + 0.1f) power = M_RADIUS + 0.1f;
+					g_stick.setPosToward(coord3d2.x, coord3d2.y, coord3d2.z, power, g_stick.getDirection() + dx * 0.007f);
 				}
 				old_x = new_x;
 				old_y = new_y;
