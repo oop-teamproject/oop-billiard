@@ -45,6 +45,10 @@ D3DXMATRIX g_mProj;
 #define PI 3.14159265
 #define M_HEIGHT 0.01 //height of wall
 
+#define PLANE_WIDTH 9.0f //default 9.0f
+#define PLANE_DEPTH 6.0f //default 6.0f
+#define WALL_THICKNESS 0.12f //default 0.12f
+#define WALL_HEIGHT 0.3f  //default 0.3f
 
 // -----------------------------------------------------------------------------
 // Global variables
@@ -78,18 +82,18 @@ bool Setup()
     D3DXMatrixIdentity(&g_mProj);
 		
 	// create plane and set the position
-    if (false == g_legoPlane.create(Device, 9, 0.03f, 6, d3d::GREEN)) return false;
+    if (false == g_legoPlane.create(Device, PLANE_WIDTH, 0.03f, PLANE_DEPTH, d3d::GREEN)) return false;
     g_legoPlane.setPosition(0.0f, -0.0006f / 5, 0.0f);
 	
 	// create walls and set the position. note that there are four walls
-	if (false == g_legowall[0].create(Device, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
-	g_legowall[0].setPosition(0.0f, 0.12f, 3.06f);
-	if (false == g_legowall[1].create(Device, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
-	g_legowall[1].setPosition(0.0f, 0.12f, -3.06f);
-	if (false == g_legowall[2].create(Device, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
-	g_legowall[2].setPosition(4.56f, 0.12f, 0.0f);
-	if (false == g_legowall[3].create(Device, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
-	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
+	if (false == g_legowall[0].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::CYAN)) return false;
+	g_legowall[0].setPosition(0.0f, WALL_THICKNESS, (PLANE_DEPTH + WALL_THICKNESS) / 2);
+	if (false == g_legowall[1].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::CYAN)) return false;
+	g_legowall[1].setPosition(0.0f, WALL_THICKNESS, (-PLANE_DEPTH - WALL_THICKNESS) / 2);
+	if (false == g_legowall[2].create(Device, WALL_THICKNESS, WALL_HEIGHT, PLANE_DEPTH + 2 * WALL_THICKNESS, d3d::DARKRED)) return false;
+	g_legowall[2].setPosition((PLANE_WIDTH + WALL_THICKNESS) / 2, WALL_THICKNESS, 0.0f);
+	if (false == g_legowall[3].create(Device, WALL_THICKNESS, WALL_HEIGHT, PLANE_DEPTH + 2 * WALL_THICKNESS, d3d::DARKRED)) return false;
+	g_legowall[3].setPosition((-PLANE_WIDTH - WALL_THICKNESS) / 2, WALL_THICKNESS, 0.0f);
 
 	if (false == g_stick.create(Device, D3DXCOLOR(1.0f, 0.8f, 0.25f, 1.0f))) return false;
 	// create four balls and set the position
