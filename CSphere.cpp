@@ -125,7 +125,7 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 		this->setCenter(tX, tY, tZ);
 	}
 	else { this->setPower(0, 0);
-	setballStopped(1);
+		if(vx != 0)setballStopped(1);
 	}
 	
 	
@@ -165,9 +165,9 @@ void CSphere::setballStopped(int Sx) // ball이멈췄는지아닌지
 		m_mtrl.Specular = d3d::CYAN;
 	}
 	else {
-		m_mtrl.Ambient = d3d::RED;
-		m_mtrl.Diffuse = d3d::RED;
-		m_mtrl.Specular = d3d::RED;
+		m_mtrl.Ambient = d3d::BLACK;
+		m_mtrl.Diffuse = d3d::BLACK;
+		m_mtrl.Specular = d3d::BLACK;
 	}
 }
 
