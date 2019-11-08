@@ -63,6 +63,15 @@ CStick  g_stick;
 
 double g_camera_pos[3] = {0.0, 5.0, -8.0};
 
+bool updateDone = true;
+/*
+updateDone이 true인 동안에는 검사하지 않는다.
+
+스페이스바를 누르면 false로 바꾼다
+공이 다 멈춰있는지를 매 턴 검사
+공이 다 멈추면 업데이트를 하고 true로 바꾼다
+*/
+
 // -----------------------------------------------------------------------------
 // Functions
 // -----------------------------------------------------------------------------
@@ -158,6 +167,13 @@ void Cleanup(void)
 }
 
 
+bool ballAllStopped() {
+	for (int i = 0; i < 4; i++) {
+		if (g_sphere[i].getVelocity() != D3DXVECTOR3(0,0,0))
+			return false;
+	}
+	return true;
+}
 // timeDelta represents the time between the current image frame and the last image frame.
 // the distance of moving balls should be "velocity * timeDelta"
 bool Display(float timeDelta)
@@ -205,13 +221,10 @@ bool Display(float timeDelta)
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
 		Device->SetTexture( 0, NULL );
-		
-		
-		if (g_sphere[1].getballStopped() == 1 && g_sphere[2].getballStopped() == 1 && g_sphere[3].getballStopped() == 1 && g_sphere[0].getballStopped() == 1)
+
+		if (updateDone == false && ballAllStopped() == true)
 		{
-
-
-
+			updateDone = true;
 			//만약 모든 공들이 멈췄을때 scount를 검사하여 경우의수를 나눈다.//노란공이 2번
 			//g_sphere[2] 노란공 g_sphere[3]=흰공  
 			if (g_sphere[1].getid() == 1 && g_sphere[0].getid() == 1)//나머지 두공 다맞았을때
@@ -223,7 +236,6 @@ bool Display(float timeDelta)
 						g_sphere[3].setturncheck(0);
 						g_sphere[2].setturncheck(1);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						//score--  상대턴
@@ -231,21 +243,19 @@ bool Display(float timeDelta)
 					else  // 노란공이 안맞았을때
 					{
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 					   //score++ 아직도 내턴 
 					}
 				
 				}
-				if (g_sphere[2].getturncheck() == 1) //노란공턴이었을때 
+				else if (g_sphere[2].getturncheck() == 1) //노란공턴이었을때 
 				{
 					if (g_sphere[3].getid() == 1)// 흰공이 맞았을때
 					{
 						g_sphere[2].setturncheck(0);
 						g_sphere[3].setturncheck(1);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 					//score -- 상대턴
@@ -254,7 +264,6 @@ bool Display(float timeDelta)
 					else
 					{
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						//score++ 내턴
@@ -269,7 +278,7 @@ bool Display(float timeDelta)
 
 
 
-			if ((g_sphere[1].getid() == 1) != (g_sphere[0].getid() == 1)) // 나머지두공중 하나만 맞았을때
+			else if ((g_sphere[1].getid() == 1) != (g_sphere[0].getid() == 1)) // 나머지두공중 하나만 맞았을때
 			{
 				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
 				{
@@ -278,7 +287,6 @@ bool Display(float timeDelta)
 						g_sphere[3].setturncheck(1);
 						g_sphere[2].setturncheck(0);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						//score-- 턴넘어감
@@ -288,21 +296,19 @@ bool Display(float timeDelta)
 						g_sphere[3].setturncheck(1);
 						g_sphere[2].setturncheck(0);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						// 점수안깍이고 턴만넘어감
 					}
 
 				}
-				if (g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
+				else if (g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
 				{
 					if (g_sphere[2].getid() == 1) // 노란공이 맞았을때
 					{
 						g_sphere[2].setturncheck(1);
 						g_sphere[3].setturncheck(0);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						//score-- 턴넘어감
@@ -312,7 +318,6 @@ bool Display(float timeDelta)
 						g_sphere[2].setturncheck(1);
 						g_sphere[3].setturncheck(0);
 						for (i = 0; i < 4; i++) {
-							g_sphere[i].setballStopped(0);
 							g_sphere[i].setid(0);
 						}
 						// 점수안깍이고 턴만넘어감
@@ -324,25 +329,23 @@ bool Display(float timeDelta)
 			}
 
 
-			if (g_sphere[1].getid() == 0 && g_sphere[0].getid() == 0)
+			else//if (g_sphere[1].getid() == 0 && g_sphere[0].getid() == 0)
 			{
 				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
 				{
 					g_sphere[2].setturncheck(0);
 					g_sphere[3].setturncheck(1);
 					for (i = 0; i < 4; i++) {
-						g_sphere[i].setballStopped(0);
 						g_sphere[i].setid(0);
 					}
 					//score -- 턴넘어감
 
 				}
-				if(g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
+				else if(g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
 				{
 					g_sphere[3].setturncheck(0);
 					g_sphere[2].setturncheck(1);
 					for (i = 0; i < 4; i++) {
-						g_sphere[i].setballStopped(0);
 						g_sphere[i].setid(0);
 					}
 					//score -- 턴넘어감
@@ -394,7 +397,9 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case VK_SPACE:
-
+			if (ballAllStopped() == false)
+				break;
+			updateDone = false;
 			D3DXVECTOR3 targetpos = g_target_blueball.getCenter();
 			// 누구의공인지 체크한걸 가져온다 . 흰공일경우 g_sphere[3]이고 아닐경우 g_sphere[2] 노란공..
 

@@ -8,7 +8,6 @@ CSphere::CSphere(void)
 	m_velocity_x = 0;
 	m_velocity_y = 0;
 	m_velocity_z = 0;
-	ballStopped = 0;
 	id = 0;
 	turncheck = 0;
 	m_pSphereMesh = NULL;
@@ -51,10 +50,6 @@ void CSphere::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 
 bool CSphere::hasIntersected(CSphere& ball)
 {
-	if (ball.getturncheck() == 1)
-	{
-		setid(1);
-	}
 	D3DXVECTOR3 distance = getCenter() - ball.getCenter();
 	float sumRad = getRadius() + ball.getRadius();
 	return sumRad >= D3DXVec3Length(&distance);
@@ -66,9 +61,10 @@ void CSphere::hitBy(CSphere& ball)
 		return;
 	else
 	{    
-
-		
-
+		if (ball.getturncheck() == 1)
+		{
+			setid(1);
+		}
 		D3DXVECTOR3 other = ball.getCenter();
 		D3DXVECTOR3 vNorm = getCenter() - ball.getCenter();
 		D3DXVec3Normalize(&vNorm, &vNorm);
@@ -127,12 +123,7 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 		float tZ = cord.z + TIME_SCALE * timeDiff * m_velocity_z;
 		this->setCenter(tX, tY, tZ);
 	}
-	else { this->setPower(0, 0);
-	if (checkx != 0 && getVelocity_X() == 0)
-	{
-		setballStopped(1);
-	}
-	}
+	else { this->setPower(0, 0); }
 	
 	
 	//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
@@ -161,12 +152,6 @@ void CSphere::setturncheck(int tck)//turncheck set (지금누구의턴인지)
 void CSphere::setid(int cid)// 지금의 턴인  ball과 충돌했는지 아닌지
 {
 	this->id = cid;
-}
-void CSphere::setballStopped(int Sx) // ball이멈췄는지아닌지
-{
-	this->ballStopped=Sx;
-
-
 }
 
 void CSphere::setPower(float vx, float vy, float vz)
