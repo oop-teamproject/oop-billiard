@@ -65,6 +65,10 @@ void CSphere::hitBy(CSphere& ball)
 		{
 			setid(1);
 		}
+		if (getturncheck() == 1)
+		{
+			ball.setid(1);
+		}
 		D3DXVECTOR3 other = ball.getCenter();
 		D3DXVECTOR3 vNorm = getCenter() - ball.getCenter();
 		D3DXVec3Normalize(&vNorm, &vNorm);

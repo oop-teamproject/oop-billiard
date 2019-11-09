@@ -38,8 +38,8 @@ public:
 	float getVelocity_X() const { return this->m_velocity_x; }
 	float getVelocity_Y() const { return this->m_velocity_y; }
 	float getVelocity_Z() const { return this->m_velocity_z; }
-	float getid() const { return this->id; }
-	float getturncheck() const { return this->turncheck;}
+	int getid() const { return this->id; }
+	int getturncheck() const { return this->turncheck;}
 	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
 
 	inline void setPower(float vx, float vz) { setPower(vx, getVelocity_Y(), vz); }
