@@ -15,6 +15,7 @@
 #include "CWall.h"
 #include "CLight.h"
 #include "CStick.h"
+#include "CScoreboard.h"
 #include <d3dx9.h>
 #include <vector>
 #include <ctime>
@@ -53,12 +54,12 @@ D3DXMATRIX g_mProj;
 // -----------------------------------------------------------------------------
 // Global variables
 // -----------------------------------------------------------------------------
-CWall	g_legoPlane;
-CWall	g_legowall[4];
-CSphere	g_sphere[4];
-CLight	g_light;
-CStick  g_stick;
-
+CWall	    g_legoPlane;
+CWall	    g_legowall[4];
+CSphere	    g_sphere[4];
+CLight	    g_light;
+CStick      g_stick;
+CScoreBoard g_scoreboard;
 
 double g_camera_pos[3] = {0.0, 5.0, -8.0};
 
@@ -113,6 +114,9 @@ bool Setup()
 	g_stick.setPosToward(g_sphere[3].getCenter().x, g_sphere[3].getCenter().y, g_sphere[3].getCenter().z, 1.0f, 0);
 	
 	g_sphere[3].setturncheck(1);
+
+	g_scoreboard.create(Device, 50, "Arial", d3d::BLACK);
+	g_scoreboard.setFontArea(0, int(Height * 0.1f), Width, int(Height * 0.15f));
 
 	// light setting 
     D3DLIGHT9 lit;
@@ -211,6 +215,9 @@ bool Display(float timeDelta)
 		g_stick.draw(Device, g_mWorld);
 		g_light.setLight(Device, g_mWorld);
         g_light.draw(Device, g_mWorld);
+
+		g_scoreboard.draw(Device);
+
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
 		Device->SetTexture( 0, NULL );
@@ -232,6 +239,7 @@ bool Display(float timeDelta)
 							g_sphere[i].setid(0);
 						}
 						//score--  상대턴
+						g_scoreboard.addScoreA(-1);
 					}
 					else  // 노란공이 안맞았을때
 					{
@@ -239,8 +247,8 @@ bool Display(float timeDelta)
 							g_sphere[i].setid(0);
 						}
 					   //score++ 아직도 내턴 
+						g_scoreboard.addScoreA(1);
 					}
-				
 				}
 				else if (g_sphere[2].getturncheck() == 1) //노란공턴이었을때 
 				{
@@ -251,8 +259,8 @@ bool Display(float timeDelta)
 						for (i = 0; i < 4; i++) {
 							g_sphere[i].setid(0);
 						}
-					//score -- 상대턴
-					
+						//score -- 상대턴
+						g_scoreboard.addScoreB(-1);
 					}
 					else
 					{
@@ -260,17 +268,10 @@ bool Display(float timeDelta)
 							g_sphere[i].setid(0);
 						}
 						//score++ 내턴
+						g_scoreboard.addScoreB(1);
 					}
-				
-				
-				
 				}
-					
-			
 			}
-
-
-
 			else if ((g_sphere[1].getid() == 1) != (g_sphere[0].getid() == 1)) // 나머지두공중 하나만 맞았을때
 			{
 				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
@@ -283,6 +284,7 @@ bool Display(float timeDelta)
 							g_sphere[i].setid(0);
 						}
 						//score-- 턴넘어감
+						g_scoreboard.addScoreB(-1);
 					}
 					else
 					{
@@ -293,7 +295,6 @@ bool Display(float timeDelta)
 						}
 						// 점수안깍이고 턴만넘어감
 					}
-
 				}
 				else if (g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
 				{
@@ -305,6 +306,7 @@ bool Display(float timeDelta)
 							g_sphere[i].setid(0);
 						}
 						//score-- 턴넘어감
+						g_scoreboard.addScoreA(-1);
 					}
 					else//노란공이 안맞았을때
 					{
@@ -315,13 +317,8 @@ bool Display(float timeDelta)
 						}
 						// 점수안깍이고 턴만넘어감
 					}
-
 				}
-				
-			
 			}
-
-
 			else//if (g_sphere[1].getid() == 0 && g_sphere[0].getid() == 0)
 			{
 				if (g_sphere[2].getturncheck() == 1)// 노란공턴이었을때
@@ -332,7 +329,7 @@ bool Display(float timeDelta)
 						g_sphere[i].setid(0);
 					}
 					//score -- 턴넘어감
-
+					g_scoreboard.addScoreB(-1);
 				}
 				else if(g_sphere[3].getturncheck() == 1)// 흰공턴이었을때
 				{
@@ -342,10 +339,8 @@ bool Display(float timeDelta)
 						g_sphere[i].setid(0);
 					}
 					//score -- 턴넘어감
-
+					g_scoreboard.addScoreA(-1);
 				}
-			
-			
 			}
 			// g-sphere[1].id=1 이고 g_sphere[4].id=1 이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +1 후 자신의턴
 			// g-sphere[1].id와 g_sphere[4].id 값중 하나가 1이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +0 후 상대턴
@@ -357,11 +352,8 @@ bool Display(float timeDelta)
 			StickPower = 1.0f;
 			g_stick.setPosToward(aim->getPosition_X(), aim->getPosition_Y(), aim->getPosition_Z(), StickPower, 0);
 			g_stick.setVisible(true);
-		};
-	
-
+		}
 	}
-
 	return true;
 }
 

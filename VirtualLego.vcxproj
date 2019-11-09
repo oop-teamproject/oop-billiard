@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CLight.cpp" />
+    <ClCompile Include="CScoreBoard.cpp" />
     <ClCompile Include="CSphere.cpp" />
     <ClCompile Include="CStick.cpp" />
     <ClCompile Include="CWall.cpp" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLight.h" />
+    <ClInclude Include="CScoreboard.h" />
     <ClInclude Include="CSphere.h" />
     <ClInclude Include="CStick.h" />
     <ClInclude Include="CWall.h" />

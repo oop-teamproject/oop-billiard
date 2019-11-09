@@ -33,6 +33,9 @@
     <ClCompile Include="CStick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CScoreBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dUtility.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CStick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CScoreboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
