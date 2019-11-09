@@ -31,6 +31,10 @@ public:
 	void setturncheck(int tck);
 	void setid(int cid);
 
+	float getPosition_X() const { return this->center_x; }
+	float getPosition_Y() const { return this->center_y; }
+	float getPosition_Z() const { return this->center_z; }
+
 	float getVelocity_X() const { return this->m_velocity_x; }
 	float getVelocity_Y() const { return this->m_velocity_y; }
 	float getVelocity_Z() const { return this->m_velocity_z; }

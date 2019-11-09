@@ -56,7 +56,6 @@ D3DXMATRIX g_mProj;
 CWall	g_legoPlane;
 CWall	g_legowall[4];
 CSphere	g_sphere[4];
-CSphere	g_target_blueball;
 CLight	g_light;
 CStick  g_stick;
 
@@ -95,9 +94,9 @@ bool Setup()
     g_legoPlane.setPosition(0.0f, -0.0006f / 5, 0.0f);
 	
 	// create walls and set the position. note that there are four walls
-	if (false == g_legowall[0].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::CYAN)) return false;
+	if (false == g_legowall[0].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::DARKRED)) return false;
 	g_legowall[0].setPosition(0.0f, WALL_THICKNESS, (PLANE_DEPTH + WALL_THICKNESS) / 2);
-	if (false == g_legowall[1].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::CYAN)) return false;
+	if (false == g_legowall[1].create(Device, PLANE_WIDTH, WALL_HEIGHT, WALL_THICKNESS, d3d::DARKRED)) return false;
 	g_legowall[1].setPosition(0.0f, WALL_THICKNESS, (-PLANE_DEPTH - WALL_THICKNESS) / 2);
 	if (false == g_legowall[2].create(Device, WALL_THICKNESS, WALL_HEIGHT, PLANE_DEPTH + 2 * WALL_THICKNESS, d3d::DARKRED)) return false;
 	g_legowall[2].setPosition((PLANE_WIDTH + WALL_THICKNESS) / 2, WALL_THICKNESS, 0.0f);
@@ -113,10 +112,6 @@ bool Setup()
 	}
 	g_stick.setPosToward(g_sphere[3].getCenter().x, g_sphere[3].getCenter().y, g_sphere[3].getCenter().z, 1.0f, 0);
 	
-	// create blue ball for set direction
-    if (false == g_target_blueball.create(Device, d3d::BLUE)) return false;
-	g_target_blueball.setCenter(.0f, (float)M_RADIUS , .0f);
-
 	g_sphere[3].setturncheck(1);
 
 	// light setting 
@@ -135,7 +130,7 @@ bool Setup()
         return false;
 	
 	// Position and aim the camera.
-	D3DXVECTOR3 pos(0.0f, 5.0f, -8.0f);
+	D3DXVECTOR3 pos(0.0f, 6.0f, -9.6f);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 2.0f, 0.0f);
 	D3DXMatrixLookAtLH(&g_mView, &pos, &target, &up);
@@ -176,6 +171,9 @@ bool ballAllStopped() {
 }
 // timeDelta represents the time between the current image frame and the last image frame.
 // the distance of moving balls should be "velocity * timeDelta"
+
+float StickPower = 1.0f;
+
 bool Display(float timeDelta)
 {
 	int i=0;
@@ -194,9 +192,6 @@ bool Display(float timeDelta)
 				g_legowall[i].hitBy(g_sphere[j]);
 			}
 		}
-		if (g_sphere[3].getVelocity_X() == 0 && g_sphere[3].getVelocity_Y() == 0)
-			g_stick.setVisible(true);
-		else g_stick.setVisible(false);
 		// check whether any two balls hit together and update the direction of balls
 		for(i = 0 ;i < 4; i++){
 			for(j = 0 ; j < 4; j++) {
@@ -214,7 +209,6 @@ bool Display(float timeDelta)
 			g_sphere[i].draw(Device, g_mWorld);
 		}
 		g_stick.draw(Device, g_mWorld);
-		g_target_blueball.draw(Device, g_mWorld);
 		//g_light.setLight(Device, g_mWorld);
         g_light.draw(Device/*, g_mWorld*/);
 		
@@ -357,9 +351,13 @@ bool Display(float timeDelta)
 			// g-sphere[1].id=1 이고 g_sphere[4].id=1 이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +1 후 자신의턴
 			// g-sphere[1].id와 g_sphere[4].id 값중 하나가 1이고 g_sphere[2]와 g_sphere[3]중 turncheck가 0인공의 id가 0이면 +0 후 상대턴
 			// 위의 경우가 둘다 아닐경우 -1 하고 상대턴
-
-			
-
+			CSphere* aim = NULL;
+			if (g_sphere[2].getturncheck())
+				aim = &g_sphere[2];
+			else aim = &g_sphere[3];
+			StickPower = 1.0f;
+			g_stick.setPosToward(aim->getPosition_X(), aim->getPosition_Y(), aim->getPosition_Z(), StickPower, 0);
+			g_stick.setVisible(true);
 		};
 	
 
@@ -375,7 +373,6 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     static int old_x = 0;
     static int old_y = 0;
     static enum { WORLD_MOVE, LIGHT_MOVE, BLOCK_MOVE } move = WORLD_MOVE;
-	static float power = 1.0f;
 	
 	switch( msg ) {
 	case WM_DESTROY:
@@ -400,33 +397,29 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (ballAllStopped() == false)
 				break;
 			updateDone = false;
-			D3DXVECTOR3 targetpos = g_target_blueball.getCenter();
+			g_stick.setVisible(false);
 			// 누구의공인지 체크한걸 가져온다 . 흰공일경우 g_sphere[3]이고 아닐경우 g_sphere[2] 노란공..
 
-
-
-
-			D3DXVECTOR3	whitepos = g_sphere[3].getCenter();
+			D3DXVECTOR3	ballpos = g_sphere[3].getCenter();
 
 			if (g_sphere[2].getturncheck() == 1)
 			{
-					whitepos = g_sphere[2].getCenter();
+					ballpos = g_sphere[2].getCenter();
 			}
-
-
-			double theta = acos(sqrt(pow(targetpos.x - whitepos.x, 2)) / sqrt(pow(targetpos.x - whitepos.x, 2) +
-				pow(targetpos.z - whitepos.z, 2)));		// 기본 1 사분면
-			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x >= 0) { theta = -theta; }	//4 사분면
-			if (targetpos.z - whitepos.z >= 0 && targetpos.x - whitepos.x <= 0) { theta = PI - theta; } //2 사분면
-			if (targetpos.z - whitepos.z <= 0 && targetpos.x - whitepos.x <= 0) { theta = PI + theta; } // 3 사분면
-			double distance = sqrt(pow(targetpos.x - whitepos.x, 2) + pow(targetpos.z - whitepos.z, 2));
+			D3DXVECTOR3 targetpos = ballpos * 2 - g_stick.getCenter();//g_stick.getCenter()를 구의 중심에 대칭시킨 점.
+			double theta = acos(sqrt(pow(targetpos.x - ballpos.x, 2)) / sqrt(pow(targetpos.x - ballpos.x, 2) +
+				pow(targetpos.z - ballpos.z, 2)));		// 기본 1 사분면
+			if (targetpos.z - ballpos.z <= 0 && targetpos.x - ballpos.x >= 0) { theta = -theta; }	//4 사분면
+			if (targetpos.z - ballpos.z >= 0 && targetpos.x - ballpos.x <= 0) { theta = PI - theta; } //2 사분면
+			if (targetpos.z - ballpos.z <= 0 && targetpos.x - ballpos.x <= 0) { theta = PI + theta; } // 3 사분면
+			double distance = sqrt(pow(targetpos.x - ballpos.x, 2) + pow(targetpos.z - ballpos.z, 2));
 			if (g_sphere[2].getturncheck() == 0)
 			 {
-			   g_sphere[3].setPower(distance * cos(theta), distance * sin(theta));
+			   g_sphere[3].setPower(distance * cos(theta) * 2, distance * sin(theta) * 2);
 		     }
 			if (g_sphere[2].getturncheck() == 1)
 				{
-					g_sphere[2].setPower(distance* cos(theta), distance* sin(theta));
+					g_sphere[2].setPower(distance* cos(theta) * 2, distance* sin(theta) * 2);
 				}
 					
 				
@@ -475,13 +468,13 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (LOWORD(wParam) & MK_RBUTTON) {
 					dx = (float)(old_x - new_x);// * 0.01f;
 					dy = (float)(old_y - new_y);// * 0.01f;
-		
-					D3DXVECTOR3 coord3d=g_target_blueball.getCenter();
-					D3DXVECTOR3 coord3d2 = g_sphere[3].getCenter();
-					g_target_blueball.setCenter(coord3d.x+dx*(-0.007f),coord3d.y,coord3d.z+dy*0.007f );
-					power += dy * (-0.007f);
-					if (power < M_RADIUS + 0.1f) power = M_RADIUS + 0.1f;
-					g_stick.setPosToward(coord3d2.x, coord3d2.y, coord3d2.z, power, g_stick.getDirection() + dx * 0.007f);
+					CSphere* pos = NULL;
+					if (g_sphere[2].getturncheck())
+						pos = &g_sphere[2];
+					else pos = &g_sphere[3];
+					StickPower += dy * (-0.007f);
+					if (StickPower < M_RADIUS + 0.1f) StickPower = M_RADIUS + 0.1f;
+					g_stick.setPosToward(pos->getPosition_X(), pos->getPosition_Y(), pos->getPosition_Z(), StickPower, g_stick.getDirection() + dx * 0.007f);
 				}
 				old_x = new_x;
 				old_y = new_y;
