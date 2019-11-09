@@ -19,9 +19,9 @@
 ### 그래픽
  - DONE::조명 움직이기
  - DONE::당구채 넣기
- - TODO::사람 그림자패널 넣기
+ - TODO?:사람 그림자패널 넣기
 
 ### 게임플레이
  - DONE::누구 차례인지 검출
- - TODO::점수판, class CScoreBoard
+ - DONE::점수판, class CScoreBoard
  
