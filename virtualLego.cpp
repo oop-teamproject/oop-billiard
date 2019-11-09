@@ -209,9 +209,8 @@ bool Display(float timeDelta)
 			g_sphere[i].draw(Device, g_mWorld);
 		}
 		g_stick.draw(Device, g_mWorld);
-		//g_light.setLight(Device, g_mWorld);
-        g_light.draw(Device/*, g_mWorld*/);
-		
+		g_light.setLight(Device, g_mWorld);
+        g_light.draw(Device, g_mWorld);
 		Device->EndScene();
 		Device->Present(0, 0, 0, 0);
 		Device->SetTexture( 0, NULL );
