@@ -62,14 +62,9 @@ bool CWall::hasIntersected(CSphere& ball) const
 	//충돌하지 않는 경우가 훨씬 많으므로, 충분히 넓은 바운딩박스 안에 들어오지 않는 경우를 먼저 배제한다.
 	if (ballCenter.x - ballRadius > wallCenter.x + width || ballCenter.x + ballRadius < wallCenter.x - width)
 		return false;
-	if (ballCenter.y - ballRadius > wallCenter.y + height || ballCenter.y + ballRadius < wallCenter.y - height)
-		return false;
 	if (ballCenter.z - ballRadius > wallCenter.z + depth || ballCenter.z + ballRadius < wallCenter.z - depth)
 		return false;
-	D3DXVECTOR3 closest = closestPoint(ball);
-	D3DXVECTOR3 diff = closest - ballCenter;
-	//구의 중심과, 구에 가장 가까운 정육면체 위의 점 사이의 거리를 재서 판단한다.
-	return D3DXVec3Length(&diff) <= ballRadius;
+	return true;
 }
 
 //파라미터로 주어진 구에 가장 가까운 직육면체 위의 점을 구한다.
@@ -109,7 +104,7 @@ void CWall::hitBy(CSphere& ball)
 		//공과 벽이 겹칠 경우 뒤로 조금 돌린다.
 		//만약 공이 전혀 움직이지 않고 있던 경우 모순이 생기므로 속도를 임의로 설정한다.
 		if (ball.getVelocity() == D3DXVECTOR3(0, 0, 0))
-			ball.setPower(1, 0, 0);
+			ball.setPower(1, 0);
 		D3DXVECTOR3 prevPos = ball.getCenter() - ball.getVelocity();
 		D3DXVECTOR3 currentPos = ball.getCenter();
 		D3DXVECTOR3 closest = closestPoint(ball);
@@ -129,10 +124,7 @@ void CWall::hitBy(CSphere& ball)
 		D3DXVECTOR3 vOrthogonal = ball.getVelocity() - vTowardWall;
 		vTowardWall = -vTowardWall;
 		D3DXVECTOR3 newVelocity = vTowardWall + vOrthogonal;
-		if (newVelocity.y <= 0.1)
-			ball.setPower(newVelocity.x, 0, newVelocity.z);
-		else
-			ball.setPower(newVelocity.x, newVelocity.y, newVelocity.z);
+		ball.setPower(newVelocity.x, newVelocity.z);
 		//뒤로 돌렸던 만큼 다시 앞으로 이동시킨다.
 		currentPos = ball.getCenter();
 		currentPos += (1 - multiplier) * ball.getVelocity();

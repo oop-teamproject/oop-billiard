@@ -6,7 +6,6 @@ CSphere::CSphere(void)
 	ZeroMemory(&m_mtrl, sizeof(m_mtrl));
 	m_radius = M_RADIUS;
 	m_velocity_x = 0;
-	m_velocity_y = 0;
 	m_velocity_z = 0;
 	id = 0;
 	turncheck = 0;
@@ -52,7 +51,7 @@ bool CSphere::hasIntersected(CSphere& ball)
 {
 	D3DXVECTOR3 distance = getCenter() - ball.getCenter();
 	float sumRad = getRadius() + ball.getRadius();
-	return sumRad >= D3DXVec3Length(&distance);
+	return sumRad * sumRad >= D3DXVec3LengthSq(&distance);
 }
 
 void CSphere::hitBy(CSphere& ball)
@@ -106,8 +105,8 @@ void CSphere::hitBy(CSphere& ball)
 		D3DXVECTOR3 vBallOrtho = ball.getVelocity() - vBallNorm;
 		D3DXVECTOR3 vThisNewVec = vBallNorm + vThisOrtho;
 		D3DXVECTOR3 vBallNewVec = vThisNorm + vBallOrtho;
-		setPower(vThisNewVec.x, vThisNewVec.y, vThisNewVec.z);
-		ball.setPower(vBallNewVec.x, vBallNewVec.y, vBallNewVec.z);
+		setPower(vThisNewVec.x, vThisNewVec.z);
+		ball.setPower(vBallNewVec.x, vBallNewVec.z);
 	}
 }
 
@@ -123,29 +122,16 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	if (vx > 0.01 || vy > 0.01 || vz > 0.01)
 	{
 		float tX = cord.x + TIME_SCALE * timeDiff * m_velocity_x;
-		float tY = cord.y + TIME_SCALE * timeDiff * m_velocity_y;
+		float tY = cord.y;
 		float tZ = cord.z + TIME_SCALE * timeDiff * m_velocity_z;
 		this->setCenter(tX, tY, tZ);
 	}
 	else { this->setPower(0, 0); }
-	
-	
 	//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
 	double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
 	if (rate < 0)
 		rate = 0;
-	
-	
 	this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
-	
-	//공이멈추는 순간에는 공이속력을줄이기전에는 속력이 0 이상이기에 그전값과 줄인후에 값을 봐서 공이멈췄는지 아닌지 체크하는것
-		
-
-
-	
-	
-
-	
 }
 void CSphere::setturncheck(int tck)//turncheck set (지금누구의턴인지)
 {
@@ -158,10 +144,9 @@ void CSphere::setid(int cid)// 지금의 턴인  ball과 충돌했는지 아닌지
 	this->id = cid;
 }
 
-void CSphere::setPower(float vx, float vy, float vz)
+void CSphere::setPower(float vx, float vz)
 {
 	this->m_velocity_x = vx;
-	this->m_velocity_y = vy;
 	this->m_velocity_z = vz;
 }
 void CSphere::setCenter(float x, float y, float z)

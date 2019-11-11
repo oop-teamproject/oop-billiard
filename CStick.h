@@ -5,11 +5,12 @@
 #include "CSphere.h"
 #include <cmath>
 #define PI 3.14159265
+#define S_LENGTH 4.0f; //당구채의 길이
+
 class CStick {
 private:
 	float                   v_y;			//당구채가 가리키는 방향. +x방향이 0, 위에서 볼 때 시계방향으로 회전한다. 단위 rad
 	float					m_x, m_y, m_z;	//당구채의 중심.
-	float					length;			//당구채의 길이.
 	float					visible;		//현재 당구채를 그려야 하는지 판별
 public:
 	CStick(void);
@@ -27,7 +28,8 @@ public:
 	inline float getZ() const { return m_z; }
 	inline float getDirection() const { return v_y; }
 	inline D3DXVECTOR3 getCenter(void) const { return D3DXVECTOR3(m_x, m_y, m_z); }
-	void setVisible(bool isTrue) { visible = isTrue; }
+	inline void setVisible(bool isTrue) { visible = isTrue; }
+	inline float getLength() const { return S_LENGTH; }
 	void setPosToward(float x, float y, float z, float distance, float direction); //set position toward (x, m_y, z). distance between cue and ball are distance, and rotated toward +y from +x axis by direction rad.
 private:
 	inline void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }

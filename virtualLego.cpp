@@ -203,9 +203,6 @@ bool Display(float timeDelta)
 				g_sphere[i].hitBy(g_sphere[j] /*TODO::, timeDelta*/);
 			}
 		}
-		//D3DXVECTOR3 viewPoint = g_sphere[3].getCenter();
-		//g_stick.setPosToward(viewPoint.x, viewPoint.z, 2.8f, g_stick.getDirection() + 0.7f * timeDelta);
-		
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
 		for (i=0;i<4;i++) 	{

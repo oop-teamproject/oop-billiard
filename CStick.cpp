@@ -21,8 +21,7 @@ bool CStick::create(IDirect3DDevice9* pDevice, D3DXCOLOR color)
 	m_mtrl.Specular = color;
 	m_mtrl.Emissive = d3d::BLACK;
 	m_mtrl.Power = 5.0f;
-	length = 4.0f;
-	if (FAILED(D3DXCreateCylinder(pDevice, 0.16f, 0.04f, length, 20, 20, &m_pBoundMesh, NULL)))
+	if (FAILED(D3DXCreateCylinder(pDevice, 0.16f, 0.04f, 4.0f, 20, 20, &m_pBoundMesh, NULL)))
 		return false;
 	return true;
 }
@@ -68,7 +67,7 @@ void CStick::viewAt(float x, float z) {
 
 void CStick::setPosToward(float x, float y, float z, float distance, float direction = 0)
 {
-	float len = distance + length / 2;
+	float len = distance + getLength() / 2;
 	setPosition(x - std::sin(direction) * len, y, z - std::cos(direction) * len);
 	setDirection(direction);
 }

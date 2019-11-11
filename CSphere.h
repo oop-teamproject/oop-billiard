@@ -10,7 +10,7 @@ class CSphere {
 private:
 	float					center_x, center_y, center_z;
 	float                   m_radius;
-	float					m_velocity_x, m_velocity_y, m_velocity_z;
+	float					m_velocity_x, m_velocity_z;
 	int                     id;                    // id=1; ball's turn id=0; not his turn; if the ball intersected with id=1; ball it can
 	int					    turncheck;             // Which ball is the turn; turncheck=1 is his turn turncheck=0; is not
 public:
@@ -36,14 +36,13 @@ public:
 	float getPosition_Z() const { return this->center_z; }
 
 	float getVelocity_X() const { return this->m_velocity_x; }
-	float getVelocity_Y() const { return this->m_velocity_y; }
+	float getVelocity_Y() const { return 0.0f; }
 	float getVelocity_Z() const { return this->m_velocity_z; }
 	int getid() const { return this->id; }
 	int getturncheck() const { return this->turncheck;}
-	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, m_velocity_y, m_velocity_z); }
+	D3DXVECTOR3 getVelocity() const { return D3DXVECTOR3(m_velocity_x, 0.0f, m_velocity_z); }
 
-	inline void setPower(float vx, float vz) { setPower(vx, getVelocity_Y(), vz); }
-	inline void setPower(float vx, float vy, float vz);
+	void setPower(float vx, float vz);
 	void setCenter(float x, float y, float z);
 
 	float getRadius(void)  const { return this->m_radius; }
