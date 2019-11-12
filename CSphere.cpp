@@ -76,6 +76,7 @@ void CSphere::hitBy(CSphere& ball)
 		float dz = center_z - other.z;
 		float dsum = sqrt((dx * dx) + (dy * dy) + (dz * dz));
 		float diffx, diffy, diffz;
+		float elasticity = 0.98f;
 		D3DXVECTOR3 diff;
 		if (dsum != 0)
 		{
@@ -83,13 +84,13 @@ void CSphere::hitBy(CSphere& ball)
 			diffx = getRadius() * dx / dsum - dx / 2;
 			diffy = getRadius() * dy / dsum - dy / 2;
 			diffz = getRadius() * dz / dsum - dz / 2;
-		};
-		if (dsum == 0)
+		}
+		else
 		{
 			diffx = getRadius() / 2;//// 원래의 xyz 좌표의 차이
 			diffy = getRadius() / 2;
 			diffz = getRadius() / 2;
-		};
+		}
 		center_x = center_x + diffx;
 		//center_y = center_y + diffy;/// 원래의 좌표만큼 서로밀어낸다.
 		center_z = center_z + diffz;
@@ -99,12 +100,14 @@ void CSphere::hitBy(CSphere& ball)
 		setCenter(center_x, center_y, center_z);
 		ball.setCenter(other.x, other.y, other.z);
 		//center 값 재조정 완료
-		D3DXVECTOR3 vThisNorm = D3DXVec3Dot(&getVelocity(), &vNorm) * vNorm;
+		D3DXVECTOR3 velocity = getVelocity();
+		D3DXVECTOR3 ballVelocity = ball.getVelocity();
+		D3DXVECTOR3 vThisNorm = D3DXVec3Dot(&velocity, &vNorm) * vNorm;
 		D3DXVECTOR3 vThisOrtho = getVelocity() - vThisNorm;
-		D3DXVECTOR3 vBallNorm = D3DXVec3Dot(&ball.getVelocity(), &vNorm) * vNorm;
+		D3DXVECTOR3 vBallNorm = D3DXVec3Dot(&ballVelocity, &vNorm) * vNorm;
 		D3DXVECTOR3 vBallOrtho = ball.getVelocity() - vBallNorm;
-		D3DXVECTOR3 vThisNewVec = vBallNorm + vThisOrtho;
-		D3DXVECTOR3 vBallNewVec = vThisNorm + vBallOrtho;
+		D3DXVECTOR3 vThisNewVec = ((1 - elasticity) * vThisNorm + (1 + elasticity) * vBallNorm) / 2 + vThisOrtho;
+		D3DXVECTOR3 vBallNewVec = ((1 + elasticity) * vThisNorm + (1 - elasticity) * vBallNorm) / 2 + vBallOrtho;
 		setPower(vThisNewVec.x, vThisNewVec.z);
 		ball.setPower(vBallNewVec.x, vBallNewVec.z);
 	}
@@ -117,7 +120,6 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	double vx = abs(this->getVelocity_X());
 	double vy = abs(this->getVelocity_Y());
 	double vz = abs(this->getVelocity_Z());
-	double checkx = vx;
 	
 	if (vx > 0.01 || vy > 0.01 || vz > 0.01)
 	{
@@ -131,7 +133,7 @@ void CSphere::ballUpdate(float timeDiff) /*timeDiff-- 초 단위*/
 	double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
 	if (rate < 0)
 		rate = 0;
-	this->setPower(getVelocity_X() * rate/*, getVelocity_Y() - 0.3 * GRAVITY_CONST * timeDiff*/, getVelocity_Z() * rate);
+	this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
 }
 void CSphere::setturncheck(int tck)//turncheck set (지금누구의턴인지)
 {

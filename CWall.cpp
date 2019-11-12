@@ -57,7 +57,6 @@ bool CWall::hasIntersected(CSphere& ball) const
 	D3DXVECTOR3 wallCenter = this->getCenter();
 	float ballRadius = ball.getRadius();
 	float width = getWidth() / 2;
-	float height = getHeight() / 2;
 	float depth = getDepth() / 2;
 	//충돌하지 않는 경우가 훨씬 많으므로, 충분히 넓은 바운딩박스 안에 들어오지 않는 경우를 먼저 배제한다.
 	if (ballCenter.x - ballRadius > wallCenter.x + width || ballCenter.x + ballRadius < wallCenter.x - width)
@@ -110,19 +109,23 @@ void CWall::hitBy(CSphere& ball)
 		D3DXVECTOR3 closest = closestPoint(ball);
 		float prevDist;
 		float currDist;
-		prevDist = D3DXVec3Length(&(closest - prevPos));
-		currDist = D3DXVec3Length(&(closest - currentPos));
+		D3DXVECTOR3 closestToPrev = closest - prevPos;
+		prevDist = D3DXVec3Length(&closestToPrev);
+		D3DXVECTOR3 closestToCurr = closest - currentPos;
+		currDist = D3DXVec3Length(&closestToCurr);
 		float multiplier = (ball.getRadius() - prevDist) / (currDist - prevDist);
 		ball.setCenter(prevPos.x + multiplier * ball.getVelocity_X(), prevPos.y + multiplier * ball.getVelocity_Y(), prevPos.z + multiplier * ball.getVelocity_Z());
+		//closest = closestPoint(ball);
 		//새로 속도를 계산한다.
 		D3DXVECTOR3 ballToWall = closest - ball.getCenter();
 		if (ballToWall == D3DXVECTOR3(0, 0, 0)) //closest와 구의 중심이 완전히 겹쳐 Normalize할 수 없는 경우는 임의의 벡터를 쓴다.
 			ballToWall.x = 1.0f;
 		D3DXVec3Normalize(&ballToWall, &ballToWall);
 		D3DXVECTOR3 vTowardWall;
-		vTowardWall = ballToWall * D3DXVec3Dot(&ballToWall, &ball.getVelocity());
+		D3DXVECTOR3 ballVelocity = ball.getVelocity();
+		vTowardWall = ballToWall * D3DXVec3Dot(&ballToWall, &ballVelocity);
 		D3DXVECTOR3 vOrthogonal = ball.getVelocity() - vTowardWall;
-		vTowardWall = -vTowardWall;
+		vTowardWall = -vTowardWall * 0.98f;
 		D3DXVECTOR3 newVelocity = vTowardWall + vOrthogonal;
 		ball.setPower(newVelocity.x, newVelocity.z);
 		//뒤로 돌렸던 만큼 다시 앞으로 이동시킨다.
